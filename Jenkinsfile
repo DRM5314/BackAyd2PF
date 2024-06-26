@@ -6,7 +6,7 @@ pipeline{
         parameters {
         string(
             name: 'email', 
-            defaultValue: 'davidmartinez9714@gmail.com', 
+            defaultValue: 'davidrodolfo-martinezmiranda@cunoc.edu.gt', 
             description: 'Email address to send notification' )
     }
         stages{
@@ -26,6 +26,7 @@ pipeline{
         
         post {
             failure {
+                    echo 'Send email...'
                 emailext(
                     subject: "${JOB_NAME}.${BUILD_NUMBER} FAILED",
                     mimeType: 'text/html',
@@ -41,6 +42,7 @@ pipeline{
                     body: "${JOB_NAME}.${BUILD_NUMBER} PASSED"
                 )
             }
+                echo '...Send email!!'
     }
 
 }
