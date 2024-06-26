@@ -25,8 +25,8 @@ pipeline{
         }
         
         post {
+                echo 'Send email...'
             failure {
-                    echo 'Send email...'
                 emailext(
                     subject: "${JOB_NAME}.${BUILD_NUMBER} FAILED",
                     mimeType: 'text/html',
