@@ -23,13 +23,13 @@ pipeline{
         
         post {
             failure {
-                    to: "${env.EMAIL}",
+                    to: "$env.EMAIL",
                     subject: "${JOB_NAME}.${BUILD_NUMBER} FAILED",
                     mimeType: 'text/html',
                     body: "${JOB_NAME}.${BUILD_NUMBER} FAILED"
             }
             success {
-                    to: "${env.EMAIL}",
+                    to: "$env.EMAIL",
                     subject: "${JOB_NAME}.${BUILD_NUMBER} PASSED",
                     mimeType: 'text/html',
                     body: "${JOB_NAME}.${BUILD_NUMBER} PASSED"
