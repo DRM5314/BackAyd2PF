@@ -3,6 +3,12 @@ pipeline{
         tools { 
                 maven 'Maven'
             }
+        parameters {
+        string(
+            name: 'email', 
+            defaultValue: 'davidmartinez9714@gmail.com', 
+            description: 'Email address to send notification' )
+    }
         stages{
           stage("Clone project") {
             steps{
@@ -17,5 +23,24 @@ pipeline{
             }
           }
         }
+        
+        post {
+            failure {
+                emailext(
+                    subject: "${JOB_NAME}.${BUILD_NUMBER} FAILED",
+                    mimeType: 'text/html',
+                    to: "$email",
+                    body: "${JOB_NAME}.${BUILD_NUMBER} FAILED"
+                )
+            }
+            success {
+                emailext(
+                    subject: "${JOB_NAME}.${BUILD_NUMBER} PASSED",
+                    mimeType: 'text/html',
+                    to: "$email",
+                    body: "${JOB_NAME}.${BUILD_NUMBER} PASSED"
+                )
+            }
+    }
 
 }
