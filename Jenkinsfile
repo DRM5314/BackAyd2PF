@@ -5,11 +5,16 @@ pipeline{
             }
         stages{
           stage("Clone project") {
-            git branch: 'master', url: 'https://github.com/DRM5314/BackAyd2PF.git'
+            steps{
+                    git branch: 'master', url: 'https://github.com/DRM5314/BackAyd2PF.git'
+                    echo 'Repo clone successful'
+            }
           }
         
           stage("Test") {
-            sh 'mvn clean compile test'
+            steps{
+                    sh 'mvn clean compile test'
+            }
           }
         }
 
