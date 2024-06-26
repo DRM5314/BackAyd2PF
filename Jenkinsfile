@@ -24,18 +24,22 @@ pipeline{
         post {
             failure {
                 emailext(
-                    subject: "${JOB_NAME}.${BUILD_NUMBER} FAILED",
+                    subject: "$PROJECT_NAME - Build # $BUILD_NUMBER - $BUILD_STATUS!",
                     mimeType: 'text/html',
                     to: "${env.EMAIL}",
-                    body: "${JOB_NAME}.${BUILD_NUMBER} FAILED"
+                    body: "$PROJECT_NAME - Build # $BUILD_NUMBER - $BUILD_STATUS:
+
+                            Check console output at $BUILD_URL to view the results."
                 )
             }
             success {
                 emailext(
-                    subject: "${JOB_NAME}.${BUILD_NUMBER} PASSED",
+                    subject: "$PROJECT_NAME - Build # $BUILD_NUMBER - $BUILD_STATUS!",
                     mimeType: 'text/html',
                     to: "${env.EMAIL}",
-                    body: "${JOB_NAME}.${BUILD_NUMBER} PASSED"
+                    body: "$PROJECT_NAME - Build # $BUILD_NUMBER - $BUILD_STATUS:
+
+                            Check console output at $BUILD_URL to view the results."
                 )
             }
     }
