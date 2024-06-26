@@ -3,12 +3,9 @@ pipeline{
         tools { 
                 maven 'Maven'
             }
-        parameters {
-        string(
-            name: 'email', 
-            defaultValue: 'davidrodolfo-martinezmiranda@cunoc.edu.gt', 
-            description: 'Email address to send notification' )
-    }
+        environment {
+                EMAIL = 'davidmartinez9714@gmail.com'
+        }
         stages{
           stage("Clone project") {
             steps{
@@ -29,7 +26,7 @@ pipeline{
                 emailext(
                     subject: "${JOB_NAME}.${BUILD_NUMBER} FAILED",
                     mimeType: 'text/html',
-                    to: params.email,
+                    to: "${env.EMAIL}",
                     body: "${JOB_NAME}.${BUILD_NUMBER} FAILED"
                 )
             }
@@ -37,7 +34,7 @@ pipeline{
                 emailext(
                     subject: "${JOB_NAME}.${BUILD_NUMBER} PASSED",
                     mimeType: 'text/html',
-                    to: params.email,
+                    to: "${env.EMAIL}",
                     body: "${JOB_NAME}.${BUILD_NUMBER} PASSED"
                 )
             }
