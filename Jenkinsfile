@@ -23,20 +23,16 @@ pipeline{
         
         post {
             failure {
-                emailext(
+                    to: "${env.EMAIL}",
                     subject: "${JOB_NAME}.${BUILD_NUMBER} FAILED",
                     mimeType: 'text/html',
-                    to: "${env.EMAIL}",
                     body: "${JOB_NAME}.${BUILD_NUMBER} FAILED"
-                )
             }
             success {
-                emailext(
+                    to: "${env.EMAIL}",
                     subject: "${JOB_NAME}.${BUILD_NUMBER} PASSED",
                     mimeType: 'text/html',
-                    to: "${env.EMAIL}",
                     body: "${JOB_NAME}.${BUILD_NUMBER} PASSED"
-                )
             }
     }
 
