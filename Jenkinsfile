@@ -4,7 +4,7 @@ pipeline{
                 maven 'Maven'
             }
         environment {
-                EMAIL = 'davidmartinez9714@gmail.com'
+                EMAIL = 'davidrodolfo-martinezmiranda@cunoc.edu.gt'
         }
         stages{
           stage("Clone project") {
