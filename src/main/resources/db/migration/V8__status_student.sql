@@ -1,0 +1,1 @@
+ALTER TABLE Student MODIFY status TINYINT (1) DEFAULT 1;

@@ -1,0 +1,1 @@
+ALTER TABLE Payments add column datePayment date NOT NULL;

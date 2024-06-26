@@ -1,0 +1,2 @@
+ALTER TABLE Payments CHANGE idLoan loan BIGINT NOT NULL;
+ALTER TABLE Payments ADD FOREIGN KEY (loan) REFERENCES Loan(id);

@@ -1,0 +1,6 @@
+CREATE TABLE IF NOT EXISTS fee_update_history (
+    id BIGINT NOT NULL AUTO_INCREMENT,
+    total_loans INT NOT NULL,
+    date TIMESTAMP NOT NULL,
+    CONSTRAINT PRIMARY KEY (id)
+);
