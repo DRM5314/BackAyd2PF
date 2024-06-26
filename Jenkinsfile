@@ -25,7 +25,6 @@ pipeline{
         }
         
         post {
-                echo 'Send email...'
             failure {
                 emailext(
                     subject: "${JOB_NAME}.${BUILD_NUMBER} FAILED",
@@ -42,7 +41,6 @@ pipeline{
                     body: "${JOB_NAME}.${BUILD_NUMBER} PASSED"
                 )
             }
-                echo '...Send email!!'
     }
 
 }
