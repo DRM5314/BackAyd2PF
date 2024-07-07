@@ -49,19 +49,21 @@ pipeline{
                 }
             }
             steps {
-                script {
-                    sh "scp -i ${SSH_KEY} ${PATH_TO_JAR} ${EC2_INSTANCE}:~/"
+                withCredentials([sshUserPrivateKey(credentialsId: 'key-ec2-deploy', keyFileVariable: 'SSH_KEY')]) {
+                    // Aquí puedes usar SSH_KEY de manera segura
                     sh """
-                        ssh -i ${SSH_KEY} ${EC2_INSTANCE} '
-                            # Detener la aplicación Java si está en ejecución
-                            sudo pkill -f "java -jar /library-0.0.1-SNAPSHOT.jar" || true
-                        
-                            # Iniciar la aplicación Java
-                            sudo java -jar /ruta/destino/library-0.0.1-SNAPSHOT.jar > /dev/null 2>&1 &
-                        '
+                    ssh -i \$SSH_KEY ${EC2_INSTANCE} '
+                        # Detener la aplicación Java si está en ejecución
+                        sudo pkill -f "java -jar /library-0.0.1-SNAPSHOT.jar" || true
+                
+                        # Copiar el nuevo archivo JAR a la instancia EC2
+                        scp -i \$SSH_KEY ~/library-0.0.1-SNAPSHOT.jar ubuntu@ec2-44-201-186-170.compute-1.amazonaws.com:/library-0.0.1-SNAPSHOT.jar
+                
+                        # Iniciar la aplicación Java
+                        sudo java -jar /library-0.0.1-SNAPSHOT.jar > /dev/null 2>&1 &
+                    '
                     """
-                    echo 'Deployment successful test'
-                }
+}
             }
         }
 
