@@ -57,7 +57,7 @@ pipeline{
                         sudo pkill -f "java -jar /library-0.0.1-SNAPSHOT.jar" || true
                 
                         # Copiar el nuevo archivo JAR a la instancia EC2
-                        scp -v -o StrictHostKeyChecking=no -i \$SSH_KEY ~/library-0.0.1-SNAPSHOT.jar ubuntu@ec2-44-201-186-170.compute-1.amazonaws.com:/library-0.0.1-SNAPSHOT.jar
+                        scp -v -o StrictHostKeyChecking=no ~/library-0.0.1-SNAPSHOT.jar ubuntu@ec2-44-201-186-170.compute-1.amazonaws.com:/library-0.0.1-SNAPSHOT.jar
                 
                         # Iniciar la aplicación Java
                         sudo java -jar /library-0.0.1-SNAPSHOT.jar > /dev/null 2>&1 &
