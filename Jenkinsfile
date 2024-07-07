@@ -51,17 +51,8 @@ pipeline{
             steps {
                 withCredentials([sshUserPrivateKey(credentialsId: 'key-ec2-deploy', keyFileVariable: 'SSH_KEY')]) {
                 script {
-                        sh """
-                        mkdir -p /var/lib/jenkins/.ssh
-                        chmod 700 /var/lib/jenkins/.ssh
-                        touch /var/lib/jenkins/.ssh/known_hosts
-                        chmod 600 /var/lib/jenkins/.ssh/known_hosts
-                        """
-                        // Registrar la huella digital del servidor remoto
-                        sh """
-                        ssh-keyscan -H ec2-44-201-186-170.compute-1.amazonaws.com >> ~/.ssh/known_hosts
-                        """
-                        
+                       
+                       
                         // Detener la aplicación Java si está en ejecución, copiar el nuevo archivo JAR y reiniciar la aplicación
                         sh """
                         ssh -i \$SSH_KEY ${EC2_INSTANCE} '
@@ -70,7 +61,7 @@ pipeline{
                         '
                         
                         # Copiar el nuevo archivo JAR a la instancia EC2
-                        scp -i \$SSH_KEY -v -o StrictHostKeyChecking=no ${JAR_FILE} ${EC2_INSTANCE}:${REMOTE_PATH}
+                        scp -v -o StrictHostKeyChecking=no -i \$SSH_KEY  ${JAR_FILE} ${EC2_INSTANCE}:${REMOTE_PATH}
                         
                         ssh -i \$SSH_KEY ${EC2_INSTANCE} '
                             # Iniciar la aplicación Java
