@@ -6,19 +6,51 @@ pipeline{
         environment {
                 EMAIL = 'davidrodolfo-martinezmiranda@cunoc.edu.gt'
         }
-        stages{
-          stage("Clone project") {
-            steps{
-                    git branch: 'master', url: 'https://github.com/DRM5314/BackAyd2PF.git'
-                    echo 'Repo clone successful'
+        stage('Clone Repository') {
+            steps {
+                git branch: "${env.BRANCH_NAME}", url: 'https://github.com/DRM5314/BackAyd2PF.git'
+                echo 'Repo clone successful'
             }
-          }
+        }
         
           stage("Test") {
             steps{
                     sh 'mvn clean compile test'
             }
           }
+        
+        stage('Package') {
+            steps {
+                sh 'mvn package'
+            }
+        }
+
+        stage('Integration Test') {
+            when {
+                expression {
+                    return env.BRANCH_NAME == 'dev'
+                }
+            }
+            steps {
+                sh 'mvn verify'
+                echo 'Integration tests successful'
+            }
+        }
+
+
+        stage('Deploy') {
+            when {
+                expression {
+                    return env.BRANCH_NAME == 'master'
+                }
+            }
+            steps {
+                script {
+                    echo 'Deployment successful test'
+                }
+            }
+        }
+        
         }
         
         post {
