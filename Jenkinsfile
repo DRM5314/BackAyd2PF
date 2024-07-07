@@ -6,12 +6,13 @@ pipeline{
         environment {
                 EMAIL = 'davidrodolfo-martinezmiranda@cunoc.edu.gt'
         }
-        stage('Clone-Repository') {
+        stages {
+         stage('Clone-Repository') {
             steps {
                 git branch: "${env.BRANCH_NAME}", url: 'https://github.com/DRM5314/BackAyd2PF.git'
                 echo 'Repo clone successful'
             }
-        }
+         }
         
           stage("Test") {
             steps{
@@ -50,8 +51,8 @@ pipeline{
                 }
             }
         }
-        
-        
+
+       }
         post {
             failure {
                 emailext(
