@@ -51,24 +51,9 @@ pipeline{
             }
             steps {
                 withCredentials([sshUserPrivateKey(credentialsId: 'key-ec2-deploy', keyFileVariable: 'SSH_KEY')]) {
-                script {
-                       
-                       
-                        // Detener la aplicación Java si está en ejecución, copiar el nuevo archivo JAR y reiniciar la aplicación
-                        sh """
-                        ssh -i $SSH_KEY $EC2_INSTANCE '
-                            # Detener la aplicación Java si está en ejecución
-                            sudo pkill -f "java -jar ${REMOTE_PATH}" || true
-                        '
-                        
+                script {                       
                         # Copiar el nuevo archivo JAR a la instancia EC2
                         scp -v -o StrictHostKeyChecking=no -i $SSH_KEY  $PATH_TO_JAR $EC2_INSTANCE:$REMOTE_PATH
-                        
-                        ssh -i $SSH_KEY ${EC2_INSTANCE} '
-                            # Iniciar la aplicación Java
-                            sudo java -jar $REMOTE_PATH > /dev/null 2>&1 &
-                        '
-                        """
                     }   
                 }
             }
