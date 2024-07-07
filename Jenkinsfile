@@ -53,7 +53,7 @@ pipeline{
                 script {
                         // Registrar la huella digital del servidor remoto
                         sh """
-                        ssh-keyscan -H ${ec2-44-201-186-170.compute-1.amazonaws.com} >> ~/.ssh/known_hosts
+                        ssh-keyscan -H ec2-44-201-186-170.compute-1.amazonaws.com >> ~/.ssh/known_hosts
                         """
                         
                         // Detener la aplicación Java si está en ejecución, copiar el nuevo archivo JAR y reiniciar la aplicación
