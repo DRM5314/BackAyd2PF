@@ -15,6 +15,7 @@ import com.library.repository.LoanRepository;
 import com.library.service.book.BookService;
 import com.library.service.fee.FeeService;
 import com.library.service.student.StudentService;
+import jakarta.annotation.PostConstruct;
 import jakarta.transaction.Transactional;
 import org.aspectj.lang.annotation.Before;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +43,11 @@ public class LoanServiceImpl implements LoanService{
         this.bookService = bookService;
         this.loanRepository = loanRepository;
         this.feeService = feeService;
+    }
+    @PostConstruct
+    @Transactional
+    public void init() throws ServiceException {
+        this.loansUpdateFee(LocalDate.now());
     }
 
     @Override
@@ -104,46 +110,65 @@ public class LoanServiceImpl implements LoanService{
                 (LoanResponseDTO::new).collect(Collectors.toList());
     }
 
-    @Before("execution(* com.library.service.loan.*.*(..))")
+//    @Before("execution(* com.library.service.loan.*.*(..))")
     @Scheduled(cron = "0 0 4 * * ?")
     @Transactional
     @Override
-    public List<Loan> loansUpdateFee(LocalDate actuallyDate) {
+    public List<Loan> loansUpdateFee(LocalDate actuallyDate) throws ServiceException{
         System.out.println("Ejecuto actualizar tareas de forma automatica");
+        //Para actualizar las tasas de los prestamos no se incluyen los prestamos cancelados y sancionados
         List<LoanEnum> notFind = Arrays.asList(LoanEnum.cancelled,LoanEnum.sanction);
-
         List<Loan> loans = loanRepository.findAllByReturnDateLessThanAndStateNotIn(actuallyDate,notFind);
 
+        //Se consulta cuando fue la ultima actualizacion de tasas de prestamos
         LocalDate dateNow = actuallyDate;
         LocalDate lastRegister = feeService.findLast();
 
-        loans.forEach(loan -> {
+        if(dateNow.isEqual(lastRegister)) {
+            return loans;
+        }
+        for (int i = 0; i < loans.size(); i++) {
+            Loan loan = loans.get(i);
+            //Se obtienen los dias que han pasado desde el ultimo registro
             Long daysLastRegister = ChronoUnit.DAYS.between(loan.getReturnDate(), lastRegister);
 
+            /*
+            Si es negativo quiere decir que ya se tiene una actualizacion de tasas previo a esa fecha,
+            de lo contrario se tomaran en cuenta los dias que han pasado desde la fecha de devolucion hasta la fecha actual
+            para tener un registro directo de los dias que no se tuvo en cuenta en la ultima actualizacion
+             */
             if(daysLastRegister < 0) daysLastRegister = 0L;
 
+            //Segun la logica de negocio se tienen 3 tipos de tasas, normal, penalizada y sancionada
             Long days = ChronoUnit.DAYS.between(loan.getReturnDate(), dateNow);
             Long months = ChronoUnit.MONTHS.between(loan.getReturnDate(), dateNow);
             LoanEnum enumType = loan.getState();
 
             Double newFee;
-
+            //Tasa normal indica que si no pasan mas de 3 dias desde la fecha de devolucion se cobrara una tasa normal
             if (days <= 3 && days >= 1 && enumType == LoanEnum.borrowed) {
                 days = days - daysLastRegister;
                 newFee = loan.getLoan_fee() + (NORMAL_FEE * days.intValue());
                 loan.setLoan_fee(newFee);
+                //Tasa penalizada por cada dia pasando de los 3 dias se cobrara una tasa penalizada
             } else if (days > 3 && months == 0 && (enumType == LoanEnum.borrowed || enumType == LoanEnum.penalized)) {
                 days = days - daysLastRegister;
                 if(daysLastRegister == 0)days = days - 3;
                 newFee = loan.getPenalized_fee() + (PENALIZED_FEE * days.intValue());
                 loan.setPenalized_fee(newFee);
                 loan.setState(LoanEnum.penalized);
+                //Si pasan mas de 1 mes desde la fecha de devolucion se cobrara una tasa sancionada
             } else if (months >= 1 && enumType == LoanEnum.penalized) {
+                //Se desactiva al usuario si llega a caer en penalizacion
+                Student student = studentService.findStudentByCarnetNotDto(loan.getCarnet().getCarnet());
+                student.setStatus(0);
+                studentService.updateNoDto(student);
                 loan.setSanction_fee(SANCTION_FEE);
                 loan.setState(LoanEnum.sanction);
             }
             loanRepository.save(loan);
-        });
+        }
+        //Se guarda un registro de la actualizacion de tasas
         FeeUpdateHistory feeUpdateHistory = new FeeUpdateHistory();
         feeUpdateHistory.setTotalLoans(loans.size());
         feeUpdateHistory.setDate(LocalDate.now());

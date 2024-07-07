@@ -17,6 +17,7 @@ import org.mockito.Mockito;
 
 import java.time.LocalDate;
 import java.util.Optional;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.assertj.core.api.Assertions.*;
@@ -36,7 +37,7 @@ class StudentServiceImplTest {
     private Career CAREER;
     private Long CARRER_ID = 1L;
     private String CARRER_NAME = "CARRER";
-    private Student student;
+    private Student STUDENT;
 
     @BeforeEach
     void setUp() {
@@ -46,13 +47,13 @@ class StudentServiceImplTest {
         CAREER.setId(CARRER_ID);
         CAREER.setName(CARRER_NAME);
 
-        student = new Student();
-        student.setId(ID);
-        student.setName(NAME);
-        student.setIdCareer(CAREER);
-        student.setDteBirth(DATE_BIRD);
-        student.setCarnet(CARNET);
-        student.setStatus(STATUS);
+        STUDENT = new Student();
+        STUDENT.setId(ID);
+        STUDENT.setName(NAME);
+        STUDENT.setIdCareer(CAREER);
+        STUDENT.setDteBirth(DATE_BIRD);
+        STUDENT.setCarnet(CARNET);
+        STUDENT.setStatus(STATUS);
     }
 
     @Test
@@ -62,13 +63,12 @@ class StudentServiceImplTest {
         when(studentRepository.existsByName(NAME)).thenReturn(false);
         when(studentRepository.existsByCarnet(CARNET)).thenReturn(false);
         when(careerService.findByIdNoDto(CARRER_ID)).thenReturn(CAREER);
-        when(studentRepository.save(any(Student.class))).thenReturn(student);
+        when(studentRepository.save(any(Student.class))).thenReturn(STUDENT);
 
-        StudentResponseDTO expected = new StudentResponseDTO(student);
+        StudentResponseDTO expected = new StudentResponseDTO(STUDENT);
         StudentResponseDTO actually = studentService.save(requestDTO);
 
         assertThat(actually).isEqualToComparingFieldByFieldRecursively(expected);
-
     }
 
     @Test
@@ -88,9 +88,9 @@ class StudentServiceImplTest {
 
     @Test
     void findStudentByCarnet() throws ServiceException{
-        StudentResponseDTO expected = new StudentResponseDTO(student);
+        StudentResponseDTO expected = new StudentResponseDTO(STUDENT);
 
-        when(studentRepository.findByCarnet(CARNET)).thenReturn(Optional.of(student));
+        when(studentRepository.findByCarnet(CARNET)).thenReturn(Optional.of(STUDENT));
 
         StudentResponseDTO actually = studentService.findStudentByCarnet(CARNET);
         assertThat(actually).isEqualToComparingFieldByFieldRecursively(expected);
@@ -104,9 +104,9 @@ class StudentServiceImplTest {
 
     @Test
     void isActive() throws ServiceException {
-        when(studentRepository.findByCarnet(CARNET)).thenReturn(Optional.of(student));
+        when(studentRepository.findByCarnet(CARNET)).thenReturn(Optional.of(STUDENT));
         assertThat(studentService.isActive(CARNET)).isTrue();
-        student.setStatus(0);
+        STUDENT.setStatus(0);
         assertThat(studentService.isActive(CARNET)).isFalse();
     }
     @Test
@@ -117,35 +117,46 @@ class StudentServiceImplTest {
 
     @Test
     void update() throws ServiceException{
-        when(studentRepository.findByCarnet(CARNET)).thenReturn(Optional.of(student));
+        when(studentRepository.findByCarnet(CARNET)).thenReturn(Optional.of(STUDENT));
         when(careerService.findByIdNoDto(CARRER_ID)).thenReturn(CAREER);
         when(studentRepository.existsByNameAndCarnetIsNot(NAME,CARNET)).thenReturn(false);
-        when(studentRepository.save(student)).thenReturn(student);
+        when(studentRepository.save(STUDENT)).thenReturn(STUDENT);
 
-        student.setStatus(1);
-        student.setName("DAVID");
-        StudentResponseDTO expected = new StudentResponseDTO(student);
+        STUDENT.setStatus(1);
+        STUDENT.setName("DAVID");
+        StudentResponseDTO expected = new StudentResponseDTO(STUDENT);
 
         StudentUpdateRequestDTO updateDto = new StudentUpdateRequestDTO("DAVID",CARRER_ID,DATE_BIRD,1);
         StudentResponseDTO actually = studentService.update(CARNET,updateDto);
 
 
         assertThat(actually).isEqualToComparingFieldByFieldRecursively(expected);
-        student.setStatus(STATUS);
-        student.setName(NAME);
+        STUDENT.setStatus(STATUS);
+        STUDENT.setName(NAME);
     }
     @Test
     void updateFailNameExist() throws ServiceException{
-        when(studentRepository.findByCarnet(CARNET)).thenReturn(Optional.of(student));
+        when(studentRepository.findByCarnet(CARNET)).thenReturn(Optional.of(STUDENT));
         when(careerService.findByIdNoDto(CARRER_ID)).thenReturn(CAREER);
         when(studentRepository.existsByNameAndCarnetIsNot(NAME,CARNET)).thenReturn(true);
 
-        student.setStatus(1);
-        student.setName("DAVID");
+        STUDENT.setStatus(1);
+        STUDENT.setName("DAVID");
 
         StudentUpdateRequestDTO updateDto = new StudentUpdateRequestDTO("DAVID",CARRER_ID,DATE_BIRD,1);
 
         assertThrows(DuplicatedEntityException.class,()->studentService.update(CARNET,updateDto));
+    }
 
+    @Test
+    void findAll(){
+        List<Student> list = List.of(STUDENT);
+        when(studentRepository.findAll()).thenReturn(list);
+        List<StudentResponseDTO> expected = List.of(new StudentResponseDTO(STUDENT));
+        List<StudentResponseDTO> actually = studentService.findAll();
+        assertThat(actually.size()).isEqualTo(expected.size());
+        for (int i = 0; i < actually.size(); i++) {
+            assertThat(actually.get(i)).isEqualToComparingFieldByFieldRecursively(expected.get(i));
+        }
     }
 }

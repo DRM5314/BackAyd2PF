@@ -3,6 +3,7 @@ package com.library.dto.book;
 import com.library.model.Editorial;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.Setter;
 
 @AllArgsConstructor
 @Getter

@@ -19,11 +19,11 @@ import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-
-public class CareerTest {
+import java.util.List;
+public class CareerServiceImplTest {
     private CareerServiceImpl careerService;
     private CareerRepository careerRepository = mock(CareerRepository.class);
-    private Career career;
+    private Career CAREER;
 
     private final String NAME = "CAREER";
     private final Long ID = 1L;
@@ -32,19 +32,19 @@ public class CareerTest {
     public void SetUp(){
         careerService = new CareerServiceImpl(careerRepository);
 
-        career = new Career();
-        career.setName(NAME);
-        career.setId(ID);
+        CAREER = new Career();
+        CAREER.setName(NAME);
+        CAREER.setId(ID);
     }
 
     @Test
     public void saveWithNotNameExist() throws ServiceException {
-        CareerResponseDTO expected = new CareerResponseDTO(this.career);
+        CareerResponseDTO expected = new CareerResponseDTO(this.CAREER);
 
         CareerCreateRequestDTO dtoCreate = new CareerCreateRequestDTO(NAME);
 
         when(careerRepository.existsByName(NAME)).thenReturn(false);
-        when(careerRepository.save(any(Career.class))).thenReturn(this.career);
+        when(careerRepository.save(any(Career.class))).thenReturn(this.CAREER);
         CareerResponseDTO actually = careerService.save(dtoCreate.getName());
 
         assertThat(actually).isEqualToComparingFieldByFieldRecursively(expected);
@@ -59,8 +59,8 @@ public class CareerTest {
 
     @Test
     public void findByIdDtoExists() throws ServiceException{
-        CareerResponseDTO expected = new CareerResponseDTO(this.career);
-        when(careerRepository.findById(ID)).thenReturn(Optional.of(this.career));
+        CareerResponseDTO expected = new CareerResponseDTO(this.CAREER);
+        when(careerRepository.findById(ID)).thenReturn(Optional.of(this.CAREER));
         CareerResponseDTO actually = careerService.findByIdDto(ID);
         assertThat(actually).isEqualToComparingFieldByFieldRecursively(expected);
     }
@@ -73,9 +73,9 @@ public class CareerTest {
 
     @Test
     public void findByIdNotDtoExist() throws ServiceException{
-        when(careerRepository.findById(ID)).thenReturn(Optional.of(this.career));
+        when(careerRepository.findById(ID)).thenReturn(Optional.of(this.CAREER));
         Career actually = careerService.findByIdNoDto(ID);
-        assertThat(actually).isEqualToComparingFieldByFieldRecursively(this.career);
+        assertThat(actually).isEqualToComparingFieldByFieldRecursively(this.CAREER);
     }
     @Test
     public void findByIdNotDtoExist_NoExist() throws ServiceException{
@@ -85,25 +85,36 @@ public class CareerTest {
     @Test
     public void update() throws ServiceException{
 
-        when(careerRepository.findById(ID)).thenReturn(Optional.of(career));
+        when(careerRepository.findById(ID)).thenReturn(Optional.of(CAREER));
         when(careerRepository.existsByNameAndIdIsNot(NAME,ID)).thenReturn(false);
 
 
         CareerUpdateRequestDTO updateDto = new CareerUpdateRequestDTO(ID,"C2");
-        career.setName("C2");
-        when(careerRepository.save(career)).thenReturn(career);
+        CAREER.setName("C2");
+        when(careerRepository.save(CAREER)).thenReturn(CAREER);
 
-        CareerResponseDTO expected = new CareerResponseDTO(career);
+        CareerResponseDTO expected = new CareerResponseDTO(CAREER);
         CareerResponseDTO actually = careerService.update(ID,updateDto);
         assertThat(actually).isEqualToComparingFieldByFieldRecursively(expected);
     }
 
     @Test
     void updateWithExistName(){
-        career.setName(NAME);
-        when(careerRepository.findById(ID)).thenReturn(Optional.of(career));
+        CAREER.setName(NAME);
+        when(careerRepository.findById(ID)).thenReturn(Optional.of(CAREER));
         when(careerRepository.existsByNameAndIdIsNot(NAME,ID)).thenReturn(true);
         CareerUpdateRequestDTO updateDto = new CareerUpdateRequestDTO(ID,NAME);
         assertThrows(DuplicatedEntityException.class,()->careerService.update(ID,updateDto));
+    }
+    @Test
+    void findAll(){
+        List<Career> list = List.of(CAREER);
+        when(careerRepository.findAll()).thenReturn(list);
+        List<CareerResponseDTO> expected = List.of(new CareerResponseDTO(CAREER));
+        List<CareerResponseDTO> actually = careerService.findAll();
+        assertThat(actually.size()).isEqualTo(expected.size());
+        for (int i = 0; i < actually.size(); i++) {
+            assertThat(actually.get(i)).isEqualToComparingFieldByFieldRecursively(expected.get(i));
+        }
     }
 }

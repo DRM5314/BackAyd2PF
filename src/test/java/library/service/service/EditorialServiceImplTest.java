@@ -19,6 +19,7 @@ import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import java.util.List;
 
 class EditorialServiceImplTest {
     private final Long ID = 1L;
@@ -81,7 +82,14 @@ class EditorialServiceImplTest {
 
     @Test
     void findAll() {
-
+        List<Editorial> editorials = List.of(editorial);
+        when(editorialRepository.findAll()).thenReturn(editorials);
+        List<EditorialResponseDTO> expected = List.of(new EditorialResponseDTO(editorial));
+        List<EditorialResponseDTO> actually = editorialServiceImpl.findAll();
+        assertThat(actually.size()).isEqualTo(expected.size());
+        for (int i = 0; i < actually.size(); i++) {
+            assertThat(actually.get(i)).isEqualToComparingFieldByFieldRecursively(expected.get(i));
+        }
     }
 
     @Test

@@ -2,10 +2,12 @@ package com.library.dto.student;
 
 import com.library.model.Career;
 import com.library.model.Student;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 import java.time.LocalDate;
 @Getter
+@AllArgsConstructor
 public class StudentResponseDTO {
     private Long id;
     private String name;

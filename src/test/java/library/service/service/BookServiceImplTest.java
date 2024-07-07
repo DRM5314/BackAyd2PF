@@ -136,7 +136,7 @@ class BookServiceImplTest {
     }
 
     @Test
-    void bookUupdateWithNameExist() throws ServiceException{
+    void bookUpdateWithNameExist() throws ServiceException{
         when(bookRepository.existsByTitleAndCodeIsNot(TITLE,CODE)).thenReturn(true);
         BookUpdateRequestDTO updateDto = new BookUpdateRequestDTO(ID,TITLE,AUTH,20,EDITORIAL_ID);
         assertThrows(DuplicatedEntityException.class,()->bookService.update(CODE,updateDto));

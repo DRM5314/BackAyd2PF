@@ -6,12 +6,14 @@ import com.library.exceptions.ServiceException;
 import com.library.service.editorial.EditorialService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/editorial")
+@PreAuthorize("hasAuthority('ADMIN')")
 public class EditorialController {
     private EditorialService editorialService;
 
@@ -24,7 +26,6 @@ public class EditorialController {
     public ResponseEntity<EditorialResponseDTO> create(@RequestBody String name) throws ServiceException {
         return ResponseEntity.ok(editorialService.save(name));
     }
-
     @GetMapping("/findAll")
     public ResponseEntity<List<EditorialResponseDTO>> findAll(){
         return ResponseEntity.ok(editorialService.findAll());

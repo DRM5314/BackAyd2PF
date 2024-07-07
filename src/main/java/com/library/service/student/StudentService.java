@@ -17,4 +17,5 @@ public interface StudentService {
     StudentResponseDTO update(String carne, StudentUpdateRequestDTO update) throws ServiceException;
     Student findStudentByCarnetNotDto(String carnet) throws ServiceException;
     List<StudentResponseDTO> findAll();
+    Student updateNoDto(Student student);
 }

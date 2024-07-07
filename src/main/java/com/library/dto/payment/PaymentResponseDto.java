@@ -4,11 +4,13 @@ import com.library.dto.loan.LoanResponseDTO;
 import com.library.enums.PaymentEnum;
 import com.library.model.Loan;
 import com.library.model.Payment;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 import java.time.LocalDate;
 
 @Getter
+@AllArgsConstructor
 public class PaymentResponseDto {
     private Long id;
     private LoanResponseDTO loan;

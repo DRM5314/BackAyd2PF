@@ -4,10 +4,12 @@ import com.library.dto.book.BookResponseDTO;
 import com.library.dto.student.StudentResponseDTO;
 import com.library.enums.LoanEnum;
 import com.library.model.Loan;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 import java.time.LocalDate;
 @Getter
+@AllArgsConstructor
 public class LoanResponseDTO {
     private Long id;
     private BookResponseDTO bookCode;
