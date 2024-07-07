@@ -51,7 +51,15 @@ pipeline{
             steps {
                 script {
                     sh "scp -i ${SSH_KEY} ${PATH_TO_JAR} ${EC2_INSTANCE}:~/"
-                    sh "ssh -i ${SSH_KEY} ${EC2_INSTANCE} 'sudo pkill -f "java -jar /library-0.0.1-SNAPSHOT.jar" || true &&  sudo java -jar /ruta/destino/tu-app.jar > /dev/null 2>&1 &'"
+                    sh """
+                        ssh -i ${SSH_KEY} ${EC2_INSTANCE} '
+                            # Detener la aplicación Java si está en ejecución
+                            sudo pkill -f "java -jar /library-0.0.1-SNAPSHOT.jar" || true
+                        
+                            # Iniciar la aplicación Java
+                            sudo java -jar /ruta/destino/library-0.0.1-SNAPSHOT.jar > /dev/null 2>&1 &
+                        '
+                    """
                     echo 'Deployment successful test'
                 }
             }
