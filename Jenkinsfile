@@ -51,6 +51,12 @@ pipeline{
             steps {
                 withCredentials([sshUserPrivateKey(credentialsId: 'key-ec2-deploy', keyFileVariable: 'SSH_KEY')]) {
                 script {
+                        sh """
+                        mkdir -p /var/lib/jenkins/.ssh
+                        chmod 700 /var/lib/jenkins/.ssh
+                        touch /var/lib/jenkins/.ssh/known_hosts
+                        chmod 600 /var/lib/jenkins/.ssh/known_hosts
+                        """
                         // Registrar la huella digital del servidor remoto
                         sh """
                         ssh-keyscan -H ec2-44-201-186-170.compute-1.amazonaws.com >> ~/.ssh/known_hosts
