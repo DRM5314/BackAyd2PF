@@ -11,24 +11,6 @@ pipeline{
                 REMOTE_PATH = '/library-0.0.1-SNAPSHOT.jar'
         }
         stages {
-         stage('Clone-Repository') {
-            steps {
-                git branch: "${env.BRANCH_NAME}", url: 'https://github.com/DRM5314/BackAyd2PF.git'
-                echo 'Repo clone successful'
-            }
-         }
-        
-          stage("Test") {
-            steps{
-                    sh 'mvn clean compile test'
-            }
-          }
-        
-        stage('Package') {
-            steps {
-                sh 'mvn package'
-            }
-        }
 
         stage('Integration Test') {
             when {
@@ -51,9 +33,11 @@ pipeline{
             }
             steps {
                 withCredentials([sshUserPrivateKey(credentialsId: 'key-ec2-deploy', keyFileVariable: 'SSH_KEY')]) {
-                script {                       
+                script {                     
+                        sh """
                         # Copiar el nuevo archivo JAR a la instancia EC2
                         scp -v -o StrictHostKeyChecking=no -i $SSH_KEY  $PATH_TO_JAR $EC2_INSTANCE:$REMOTE_PATH
+                        """
                     }   
                 }
             }
