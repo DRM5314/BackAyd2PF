@@ -62,7 +62,7 @@ pipeline{
                         '
                         
                         # Copiar el nuevo archivo JAR a la instancia EC2
-                        scp -v -o StrictHostKeyChecking=no -i $SSH_KEY  ${JAR_FILE} ${EC2_INSTANCE}:${REMOTE_PATH}
+                        scp -v -o StrictHostKeyChecking=no -i $SSH_KEY  ${PATH_TO_JAR} ${EC2_INSTANCE}:${REMOTE_PATH}
                         
                         ssh -i $SSH_KEY ${EC2_INSTANCE} '
                             # Iniciar la aplicación Java
