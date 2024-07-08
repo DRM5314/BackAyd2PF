@@ -73,7 +73,7 @@ pipeline{
             }
             success {
                 emailext(
-                    subject: "- Build esot # $BUILD_NUMBER - ${currentBuild.currentResult}!",
+                    subject: "- Build # $BUILD_NUMBER - ${currentBuild.currentResult}!",
                     mimeType: 'text/html',
                     to: "${env.EMAIL}",
                     body: " - Build # $BUILD_NUMBER - ${currentBuild.currentResult}:\n\n\t\tCheck console output at $BUILD_URL to view the results."
