@@ -6,7 +6,7 @@ pipeline{
         environment {
                 EMAIL = 'davidrodolfo-martinezmiranda@cunoc.edu.gt'
                 SSH_KEY = credentials('key-ec2-deploy')
-                EC2_INSTANCE = 'ubuntu@ec2-44-201-186-170.compute-1.amazonaws.com'
+                EC2_INSTANCE = 'ubuntu@3.93.162.39'
                 PATH_TO_JAR = '/var/lib/jenkins/workspace/ayd2-multibranch-pipeline_master/target/library-0.0.1-SNAPSHOT.jar'
                 REMOTE_PATH = '/home/ubuntu/library-0.0.1-SNAPSHOT.jar'
         }
