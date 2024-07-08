@@ -94,4 +94,8 @@ public class StudentServiceImpl implements StudentService{
     public List<StudentResponseDTO> findAll() {
         return studentRepository.findAll().stream().map(StudentResponseDTO::new).collect(Collectors.toList());
     }
+    @Override
+    public Student updateNoDto(Student student) {
+        return studentRepository.save(student);
+    }
 }

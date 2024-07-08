@@ -15,6 +15,6 @@ public interface LoanService {
     Loan findByCodeNotDto(Long id) throws ServiceException;
     LoanResponseDTO findByCodeDto(Long id) throws ServiceException;
     List<LoanResponseDTO> howManyBooksLoanByStudnet(String carnet) throws ServiceException;
-    List<Loan> loansUpdateFee(LocalDate dateNow);
+    List<Loan> loansUpdateFee(LocalDate dateNow) throws ServiceException;
 
 }

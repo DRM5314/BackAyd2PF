@@ -8,10 +8,12 @@ import com.library.repository.LoanRepository;
 import com.library.service.loan.LoanService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/loan")
+@PreAuthorize("hasAuthority('ADMIN')")
 public class LoanController {
     private LoanService loanService;
 
@@ -27,6 +29,7 @@ public class LoanController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyAuthority('ADMIN','STUDENT')")
     public ResponseEntity<LoanResponseDTO> findById(@PathVariable Long id) throws ServiceException{
         return ResponseEntity.ok(loanService.findByCodeDto(id));
     }

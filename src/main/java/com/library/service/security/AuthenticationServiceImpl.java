@@ -33,9 +33,9 @@ public class AuthenticationServiceImpl implements AuthenticationService{
 
     @Override
     public JwtAuthenticationResponse signin(SignInRequestDTO request) throws ServiceException{
-        UserResponseDto user = userService.findUserByUserName(request.getUser());
+        UserResponseDto user = userService.findUserByUserName(request.getUsername());
         authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.getUser(),request.getPassword())
+                new UsernamePasswordAuthenticationToken(request.getUsername(),request.getPassword())
         );
         String jwt = jwtService.generateToken(user);
         return JwtAuthenticationResponse.builder().token(jwt).build();

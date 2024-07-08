@@ -64,7 +64,7 @@ public class AuthenticationServiceTest {
     @Test
     public void signIn()throws ServiceException {
         SignInRequestDTO requestDTO = new SignInRequestDTO();
-        requestDTO.setUser(USER_NAME);
+        requestDTO.setUsername(USER_NAME);
         requestDTO.setPassword(PASSWORD);
 
         when(userService.findUserByUserName(USER_NAME)).thenReturn(userResponseDto);

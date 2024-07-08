@@ -28,8 +28,9 @@ public class AuthController {
     public ResponseEntity<JwtAuthenticationResponse> signUp(@RequestBody UserCreateRequestDTO newUSer) throws IOException, ServiceException{
         var token = authenticationService.signup(newUSer);
         var headers = new HttpHeaders();
-        headers.add("Authorization", "Bearer " + token);
-        return ResponseEntity.ok(token);
+        headers.add("Authorization", "Bearer " + token.getToken());
+        ResponseEntity returns = ResponseEntity.ok().headers(headers).build();
+        return returns;
     }
 
     @PostMapping("/signin")
@@ -37,8 +38,10 @@ public class AuthController {
         System.out.println(credentials);
         var token = authenticationService.signin(credentials);
         var headers = new HttpHeaders();
-        headers.add("Authorization", "Bearer " + token);
-        return ResponseEntity.ok(token);
+        System.out.println(token);
+        headers.add("Authorization", "Bearer " + token.getToken());
+        ResponseEntity returns = ResponseEntity.ok().headers(headers).build();
+        return returns;
     }
 
 

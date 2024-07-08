@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="JpaBuddyIdeaProjectConfig" ddlActionDbType="maria">
+    <option name="defaultUnitInitialized" value="true" />
+    <option name="renamerInitialized" value="true" />
+    <option name="sourceModelValue" value="Default" />
+    <option name="targetDbValue" value="31cdad2c-5352-4196-b22a-bc8438358542" />
+    <option name="reverseEngineeringLastDbConnectionId" value="31cdad2c-5352-4196-b22a-bc8438358542__library" />
+    <option name="reLastEntityCreationPackage" value="src/main/java/com/library/model" />
+  </component>
+</project>

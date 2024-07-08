@@ -19,8 +19,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.assertj.core.api.Assertions.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import java.time.LocalDate;
 import java.util.*;
@@ -137,6 +136,14 @@ class LoanServiceImplTest {
     }
 
     @Test
+    void saveWithBookNotSupply() throws ServiceException{
+        BOOK.setQuantity(0);
+        when(studentService.isActive(CARNET)).thenReturn(true);
+        when(loanRepository.findAllByStateAndCarnet_Carnet(LoanEnum.borrowed,CARNET)).thenReturn(new ArrayList<>(0));
+        when(bookService.findByCodeNotDTO(CODE_BOOK)).thenReturn(BOOK);
+        Assertions.assertThrows(LimitBookLoanStudent.class,()->loanService.save(dtoCreate));
+    }
+    @Test
     void saveLoanWithStudentInactive() throws ServiceException{
         when(studentService.isActive(CARNET)).thenReturn(false);
         Assertions.assertThrows(StudentInactive.class,()->loanService.save(dtoCreate));
@@ -188,9 +195,57 @@ class LoanServiceImplTest {
         when(loanRepository.findById(ID_LOAN)).thenReturn(Optional.empty());
         Assertions.assertThrows(NotFoundException.class,()->loanService.findByCodeDto(ID_LOAN));
     }
-
     @Test
-    void updatePaymentNormal_ThreeDays(){
+    void findByCodeDto() throws ServiceException{
+        LoanResponseDTO expected = new LoanResponseDTO(LOAN);
+        when(loanRepository.findById(ID_LOAN)).thenReturn(Optional.of(LOAN));
+        LoanResponseDTO actually = loanService.findByCodeDto(ID_LOAN);
+        assertThat(actually).isEqualToComparingFieldByFieldRecursively(expected);
+    }
+    @Test
+    void init() throws ServiceException{
+        Collection states = Arrays.asList(LoanEnum.cancelled,LoanEnum.sanction);
+        List<Loan> expected = new ArrayList<>();
+
+        Loan loan1 = new Loan();
+        loan1.setId(ID_LOAN);
+        loan1.setBookCode(BOOK);
+        loan1.setCarnet(STUDENT);
+        loan1.setLaonDate(LAON_DATA);
+        loan1.setReturnDate(RETURN_DATA_THREE_DAYS);
+        loan1.setState(LoanEnum.borrowed);
+        loan1.setLoan_fee(FEE_THREE_DAYS);
+        expected.add(loan1);
+        when(loanRepository.findAllByReturnDateLessThanAndStateNotIn(HISTORY_FEE_NOT_CONSIDERATION, states)).thenReturn(expected);
+        when(feeService.findLast()).thenReturn(HISTORY_FEE_NOT_CONSIDERATION);
+
+        loanService.init();
+    }
+    @Test
+    void updatePaymentZeroDays() throws ServiceException{
+        Collection states = Arrays.asList(LoanEnum.cancelled,LoanEnum.sanction);
+        List<Loan> expected = new ArrayList<>();
+
+        Loan loan1 = new Loan();
+        loan1.setId(ID_LOAN);
+        loan1.setBookCode(BOOK);
+        loan1.setCarnet(STUDENT);
+        loan1.setLaonDate(LAON_DATA);
+        loan1.setReturnDate(RETURN_DATA_THREE_DAYS);
+        loan1.setState(LoanEnum.borrowed);
+        loan1.setLoan_fee(FEE_THREE_DAYS);
+        expected.add(loan1);
+
+        when(loanRepository.findAllByReturnDateLessThanAndStateNotIn(HISTORY_FEE_NOT_CONSIDERATION, states)).thenReturn(expected);
+        when(feeService.findLast()).thenReturn(HISTORY_FEE_NOT_CONSIDERATION);
+        List<Loan> actually = loanService.loansUpdateFee(HISTORY_FEE_NOT_CONSIDERATION);
+        assertThat(actually.size()).isEqualTo(expected.size());
+        for (int i = 0; i < actually.size(); i++) {
+            assertThat(actually.get(i)).isEqualToComparingFieldByFieldRecursively(expected.get(i));
+        }
+    }
+    @Test
+    void updatePaymentNormal_ThreeDays() throws ServiceException{
         Collection states = Arrays.asList(LoanEnum.cancelled,LoanEnum.sanction);
         List<Loan> expected = new ArrayList<>();
 
@@ -236,7 +291,7 @@ class LoanServiceImplTest {
         }
     }
     @Test
-    void updatePayment_TenDays(){
+    void updatePayment_TenDays()  throws ServiceException{
         Collection states = Arrays.asList(LoanEnum.cancelled,LoanEnum.sanction);
         List<Loan> expected = new ArrayList<>();
 
@@ -282,7 +337,7 @@ class LoanServiceImplTest {
         }
     }
     @Test
-    void updatePayment_OneMonth(){
+    void updatePayment_OneMonth() throws ServiceException{
         Collection states = Arrays.asList(LoanEnum.cancelled,LoanEnum.sanction);
         List<Loan> expected = new ArrayList<>();
 
@@ -308,7 +363,9 @@ class LoanServiceImplTest {
         loanAnalize1.setState(LoanEnum.penalized);
 
         loansAnalize.add(loanAnalize1);
-
+        STUDENT.setStatus(0);
+        when(studentService.findStudentByCarnetNotDto(CARNET)).thenReturn(STUDENT);
+        when(studentService.updateNoDto(STUDENT)).thenReturn(STUDENT);
 
         when(loanRepository.findAllByReturnDateLessThanAndStateNotIn(DATA_FIND, states)).thenReturn(loansAnalize);
         when(feeService.findLast()).thenReturn(HISTORY_FEE_NOT_CONSIDERATION);
@@ -328,7 +385,7 @@ class LoanServiceImplTest {
         }
     }
     @Test
-    void updateFee_considerate_history(){
+    void updateFee_considerate_history()  throws ServiceException{
         Collection states = Arrays.asList(LoanEnum.cancelled,LoanEnum.sanction);
         List<Loan> expected = new ArrayList<>();
 
@@ -374,7 +431,7 @@ class LoanServiceImplTest {
         }
     }
     @Test
-    void updatePayment_TenDaysHistory(){
+    void updatePayment_TenDaysHistory()  throws ServiceException{
         Collection states = Arrays.asList(LoanEnum.cancelled,LoanEnum.sanction);
         List<Loan> expected = new ArrayList<>();
 

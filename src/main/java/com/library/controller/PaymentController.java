@@ -6,6 +6,7 @@ import com.library.exceptions.ServiceException;
 import com.library.service.payment.PaymentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -17,11 +18,13 @@ public class PaymentController {
         this.paymentService = paymentService;
     }
 
+    @PreAuthorize("hasAuthority('ADMIN')")
     @PostMapping
     public ResponseEntity<PaymentResponseDto> create(@RequestBody PaymentCreateRequestDTO create) throws ServiceException{
         return ResponseEntity.ok(paymentService.save(create));
     }
 
+    @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping("/{id}")
     public ResponseEntity<PaymentResponseDto> findById(@PathVariable Long id) throws ServiceException{
         return ResponseEntity.ok(paymentService.findById(id));
