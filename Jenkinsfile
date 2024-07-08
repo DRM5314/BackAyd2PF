@@ -36,7 +36,7 @@ pipeline{
                 script {                     
                         sh """
                         # Copiar el nuevo archivo JAR a la instancia EC2
-                        ssh -v -o StrictHostKeyChecking=no -i $SSH_KEY $EC2_INSTANCE 'sudo pkill -f "java -jar ${REMOTE_PATH}" || true'> /dev/null 2>&1
+                        ssh -v -o StrictHostKeyChecking=no -i $SSH_KEY $EC2_INSTANCE 'sudo pkill -f "java -jar ${REMOTE_PATH}" || true > /dev/null 2>&1'
                         """
                     }   
                 }
