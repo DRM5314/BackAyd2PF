@@ -12,12 +12,6 @@ pipeline{
         }
         stages {
 
-        stage('Package') {
-            steps {
-                sh 'mvn package'
-            }
-        }
-
         stage('Integration Test') {
             when {
                 expression {
