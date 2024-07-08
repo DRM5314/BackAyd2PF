@@ -36,6 +36,7 @@ pipeline{
                 script {                     
                         sh """
                         ssh -i $SSH_KEY $EC2_INSTANCE 'sudo pkill -f "java -jar $REMOTE_PATH"'
+                        scp -v -o StrictHostKeyChecking=no -i $SSH_KEY  $PATH_TO_JAR $EC2_INSTANCE:$REMOTE_PATH
                         """
                     }   
                 }
