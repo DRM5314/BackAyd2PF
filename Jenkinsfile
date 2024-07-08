@@ -7,7 +7,7 @@ pipeline{
                 EMAIL = 'davidrodolfo-martinezmiranda@cunoc.edu.gt'
                 SSH_KEY = credentials('key-ec2-deploy')
                 EC2_INSTANCE = 'ubuntu@ec2-3-93-162-39.compute-1.amazonaws.com'
-                PATH_TO_JAR = '/var/lib/jenkins/workspace/ayd2-multibranch-pipeline_master/target/library-0.0.1-SNAPSHOT.jar'
+                PATH_TO_JAR = '/var/lib/jenkins/workspace/ci-cd-ayd2_master/target/library-0.0.1-SNAPSHOT.jar'
                 REMOTE_PATH = '/home/ubuntu/library-0.0.1-SNAPSHOT.jar'
         }
         stages {
@@ -51,7 +51,9 @@ pipeline{
                 withCredentials([sshUserPrivateKey(credentialsId: 'key-ec2-deploy', keyFileVariable: 'SSH_KEY')]) {
                 script {                     
                         sh """
+                        ssh -i $SSH_KEY $EC2_INSTANCE 'sudo pkill -f "java -jar $REMOTE_PATH"'
                         scp -v -o StrictHostKeyChecking=no -i $SSH_KEY  $PATH_TO_JAR $EC2_INSTANCE:$REMOTE_PATH
+                        ssh -v -o StrictHostKeyChecking=no -i $SSH_KEY $EC2_INSTANCE 'sudo java -jar $REMOTE_PATH --spring.profiles.active=master > /dev/null 2>&1 &'
                         """
                     }   
                 }
