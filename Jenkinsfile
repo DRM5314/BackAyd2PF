@@ -11,9 +11,7 @@ pipeline{
                 REMOTE_PATH = '/home/ubuntu/library-0.0.1-SNAPSHOT.jar'
         }
         stages {
-        stage ('build'){
-                sh './mvnw clean package'
-        }
+       
 
         stage('Integration Test') {
             when {
@@ -27,7 +25,23 @@ pipeline{
             }
         }
 
-
+     stage('Deploy') {
+            when {
+                expression {
+                    return env.BRANCH_NAME == 'master'
+                }
+            }
+            steps {
+                withCredentials([sshUserPrivateKey(credentialsId: 'key-ec2-deploy', keyFileVariable: 'SSH_KEY')]) {
+                script {                     
+                        sh """
+                        # Copiar el nuevo archivo JAR a la instancia EC2
+                        scp -v -o StrictHostKeyChecking=no -i $SSH_KEY  $PATH_TO_JAR $EC2_INSTANCE:$REMOTE_PATH
+                        """
+                    }   
+                }
+            }
+        }
    
 
        }
