@@ -11,8 +11,24 @@ pipeline{
                 REMOTE_PATH = '/home/ubuntu/library-0.0.1-SNAPSHOT.jar'
         }
         stages {
-       
 
+       stage('Clone-Repository') {
+           steps {
+               git branch: "${env.BRANCH_NAME}", url: 'https://github.com/DRM5314/BackAyd2PF.git'
+               echo 'Repo clone successful'
+           }
+        }
+        stage("Test") {
+            steps{
+                sh 'mvn clean compile test'
+            }
+          }
+
+        stage('Package') {
+            steps {
+                sh 'mvn package'
+            }
+        }
         stage('Integration Test') {
             when {
                 expression {
