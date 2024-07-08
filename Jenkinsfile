@@ -6,8 +6,8 @@ pipeline{
         environment {
                 EMAIL = 'davidrodolfo-martinezmiranda@cunoc.edu.gt'
                 SSH_KEY = credentials('key-ec2-deploy')
-                EC2_INSTANCE = 'ubuntu@ec2-3-93-162-39.compute-1.amazonaws.com'
-                PATH_TO_JAR = '/var/lib/jenkins/workspace/ci-cd-ayd2_master/target/library-0.0.1-SNAPSHOT.jar'
+                EC2_INSTANCE = 'ubuntu@ec2-23-22-151-163.compute-1.amazonaws.com'
+                PATH_TO_JAR = '/var/lib/jenkins/workspace/ci-cd-ayd2_master_master/target/library-0.0.1-SNAPSHOT.jar'
                 REMOTE_PATH = '/home/ubuntu/library-0.0.1-SNAPSHOT.jar'
         }
         stages {
