@@ -35,7 +35,7 @@ pipeline{
                 withCredentials([sshUserPrivateKey(credentialsId: 'key-ec2-deploy', keyFileVariable: 'SSH_KEY')]) {
                 script {                     
                         sh """
-                        ssh -o StrictHostKeyChecking=no -i $SSH_KEY $EC2_INSTANCE 'sudo pkill -f "java -jar ${REMOTE_PATH}" || true'
+                        ssh -o StrictHostKeyChecking=no -i $SSH_KEY $EC2_INSTANCE 'sudo pkill -f "java -jar $REMOTE_PATH" || true'
                         """
                     }   
                 }
