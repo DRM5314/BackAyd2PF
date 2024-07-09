@@ -1,9 +1,7 @@
 package com.library.service.loan;
 
-import com.library.dto.loan.LoanCreateRequestDTO;
-import com.library.dto.loan.LoanResponseDTO;
-import com.library.dto.loan.ReportByCashAndDateRequestDTO;
-import com.library.dto.loan.ReportTotalCashResponseDTO;
+import com.library.dto.career.CareerResponseDTO;
+import com.library.dto.loan.*;
 import com.library.dto.payment.PaymentResponseDto;
 import com.library.enums.LoanEnum;
 import com.library.enums.PaymentEnum;
@@ -14,6 +12,7 @@ import com.library.exceptions.StudentInactive;
 import com.library.model.*;
 import com.library.repository.LoanRepository;
 import com.library.service.book.BookService;
+import com.library.service.career.CareerService;
 import com.library.service.fee.FeeService;
 import com.library.service.payment.PaymentService;
 import com.library.service.student.StudentService;
@@ -26,9 +25,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -41,13 +38,15 @@ public class LoanServiceImpl implements LoanService{
     private LoanRepository loanRepository;
     private FeeService feeService;
     private PaymentService paymentService;
+    private CareerService careerService;
     @Autowired
-    public LoanServiceImpl(StudentService studentService, BookService bookService,LoanRepository loanRepository,FeeService feeService,@Lazy PaymentService paymentService){
+    public LoanServiceImpl(StudentService studentService, BookService bookService,LoanRepository loanRepository,FeeService feeService,@Lazy PaymentService paymentService,@Lazy CareerService careerService){
         this.studentService = studentService;
         this.bookService = bookService;
         this.loanRepository = loanRepository;
         this.feeService = feeService;
         this.paymentService = paymentService;
+        this.careerService = careerService;
     }
     @PostConstruct
     @Transactional
@@ -201,10 +200,20 @@ public class LoanServiceImpl implements LoanService{
     }
 
     @Override
-    public ReportTotalCashResponseDTO findAllByTotalCash(ReportByCashAndDateRequestDTO request) {
+    public ReportTotalCashResponseDTO findAllByTotalCash(ReportDatesRequestDTO request) {
         List<Loan> loans = loanRepository.findAllByStateAndReturnDateBetween(LoanEnum.cancelled,request.getInit(),request.getEnd());
         Double totalCash = paymentService.findAllByTypeAndDate(PaymentEnum.normal,request.getInit(),request.getEnd()).stream().map(PaymentResponseDto::getTotal).reduce(0.0, Double::sum);
         Double totalCashSanction = paymentService.findAllByType(PaymentEnum.sanction).stream().map(PaymentResponseDto::getTotal).reduce(0.0, Double::sum);
         return new ReportTotalCashResponseDTO(loans, totalCashSanction, totalCash);
+    }
+
+    @Override
+    public ReportMoreCareerResponseDTO findMoreCareer(ReportDatesRequestDTO request) throws ServiceException{
+        Loan loan = loanRepository.findMoreCareer(request.getInit(),request.getEnd()).orElseThrow(()->
+                new NotFoundException(String.format("Not reports!")
+                ));
+        CareerResponseDTO careerResponseDTO = careerService.findByIdDto(loan.getCarnet().getIdCareer().getId());
+        List<LoanResponseDTO> loans = loanRepository.findAllByCarnet_IdCareer_Id(loan.getCarnet().getIdCareer().getId()).stream().map(LoanResponseDTO::new).collect(Collectors.toList());
+        return new ReportMoreCareerResponseDTO(careerResponseDTO,loans);
     }
 }

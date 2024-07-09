@@ -7,7 +7,7 @@ import java.time.LocalDate;
 
 @AllArgsConstructor
 @Getter
-public class ReportByCashAndDateRequestDTO {
+public class ReportDatesRequestDTO {
     private final LocalDate init;
     private final LocalDate end;
 }

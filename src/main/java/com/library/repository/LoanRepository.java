@@ -2,7 +2,9 @@ package com.library.repository;
 
 import com.library.enums.LoanEnum;
 import com.library.model.Loan;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDate;
 import java.util.Collection;
@@ -23,4 +25,7 @@ public interface LoanRepository extends CrudRepository<Loan,Long> {
     List<Loan> findAllByStateAndCarnet_Carnet(LoanEnum state,String carnet);
     List<Loan> findAllByReturnDateLessThanAndStateNotIn(LocalDate returnDate, Collection<LoanEnum> state);
     List<Loan> findAllByCarnet_CarnetAndStateIn(String carnet, Collection<LoanEnum> state);
+    @Query ("SELECT l, COUNT(l) as suma FROM Loan l INNER JOIN Student s on l.carnet.idCareer.id = s.idCareer.id where  l.returnDate between :i and :e group by l.carnet.idCareer.id order by suma desc limit 1")
+    Optional<Loan> findMoreCareer(@Param("i") LocalDate init,@Param("e") LocalDate end);
+    List<Loan> findAllByCarnet_IdCareer_Id(Long id);
 }

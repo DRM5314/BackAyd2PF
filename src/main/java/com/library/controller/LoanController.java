@@ -1,12 +1,8 @@
 package com.library.controller;
 
-import com.library.dto.loan.LoanCreateRequestDTO;
-import com.library.dto.loan.LoanResponseDTO;
-import com.library.dto.loan.ReportByCashAndDateRequestDTO;
-import com.library.dto.loan.ReportTotalCashResponseDTO;
+import com.library.dto.loan.*;
 import com.library.enums.LoanEnum;
 import com.library.exceptions.ServiceException;
-import com.library.repository.LoanRepository;
 import com.library.service.loan.LoanService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -54,8 +50,12 @@ public class LoanController {
         return ResponseEntity.ok(loanService.finddAllBySanction());
     }
     @PostMapping("/total-cash")
-    public ResponseEntity<ReportTotalCashResponseDTO> findAllByTotalCash(@RequestBody ReportByCashAndDateRequestDTO request){
+    public ResponseEntity<ReportTotalCashResponseDTO> findAllByTotalCash(@RequestBody ReportDatesRequestDTO request){
         return ResponseEntity.ok(loanService.findAllByTotalCash(request));
+    }
+    @PostMapping("/more-career")
+    public ResponseEntity<ReportMoreCareerResponseDTO> findMoreCareer(@RequestBody ReportDatesRequestDTO request) throws ServiceException{
+        return ResponseEntity.ok(loanService.findMoreCareer(request));
     }
 
 }

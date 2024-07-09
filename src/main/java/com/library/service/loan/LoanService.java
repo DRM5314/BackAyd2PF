@@ -1,9 +1,6 @@
 package com.library.service.loan;
 
-import com.library.dto.loan.LoanCreateRequestDTO;
-import com.library.dto.loan.LoanResponseDTO;
-import com.library.dto.loan.ReportByCashAndDateRequestDTO;
-import com.library.dto.loan.ReportTotalCashResponseDTO;
+import com.library.dto.loan.*;
 import com.library.enums.LoanEnum;
 import com.library.exceptions.ServiceException;
 import com.library.model.Loan;
@@ -21,5 +18,6 @@ public interface LoanService {
     List<LoanResponseDTO> findlAllNotCancelledByCarnet(String carnet) throws ServiceException;
     List<LoanResponseDTO> findAllByReturnNow() throws ServiceException;
     List<LoanResponseDTO> finddAllBySanction() throws ServiceException;
-    ReportTotalCashResponseDTO findAllByTotalCash(ReportByCashAndDateRequestDTO request);
+    ReportTotalCashResponseDTO findAllByTotalCash(ReportDatesRequestDTO request);
+    ReportMoreCareerResponseDTO findMoreCareer(ReportDatesRequestDTO request) throws ServiceException;
 }

@@ -1,9 +1,7 @@
 package library.service.service;
 
-import com.library.dto.loan.LoanCreateRequestDTO;
-import com.library.dto.loan.LoanResponseDTO;
-import com.library.dto.loan.ReportByCashAndDateRequestDTO;
-import com.library.dto.loan.ReportTotalCashResponseDTO;
+import com.library.dto.career.CareerResponseDTO;
+import com.library.dto.loan.*;
 import com.library.dto.payment.PaymentResponseDto;
 import com.library.enums.LoanEnum;
 import com.library.enums.PaymentEnum;
@@ -14,6 +12,7 @@ import com.library.exceptions.StudentInactive;
 import com.library.model.*;
 import com.library.repository.LoanRepository;
 import com.library.service.book.BookService;
+import com.library.service.career.CareerService;
 import com.library.service.fee.FeeService;
 import com.library.service.loan.LoanServiceImpl;
 import com.library.service.payment.PaymentService;
@@ -36,6 +35,7 @@ class LoanServiceImplTest {
     private LoanRepository loanRepository = mock(LoanRepository.class);
     private FeeService feeService = mock(FeeService.class);
     private PaymentService paymentService = mock(PaymentService.class);
+    private CareerService careerService = mock(CareerService.class);
     private final Long ID_LOAN = 1l;
     private final LocalDate LAON_DATA = LocalDate.now();
     private final LocalDate RETURN_DATA = LocalDate.now().plusDays(3);
@@ -78,7 +78,7 @@ class LoanServiceImplTest {
     private LoanCreateRequestDTO dtoCreate;
     @BeforeEach
     void setUp() {
-        loanService = new LoanServiceImpl(studentService, bookService, loanRepository,feeService,paymentService);
+        loanService = new LoanServiceImpl(studentService, bookService, loanRepository,feeService,paymentService,careerService);
 
         EDITORIAL = new Editorial();
         EDITORIAL.setId(EDITORIAL_ID);
@@ -605,10 +605,27 @@ class LoanServiceImplTest {
         when(paymentService.findAllByTypeAndDate(PaymentEnum.normal, LocalDate.now(), LocalDate.now())).thenReturn(paymentsDto);
         when(paymentService.findAllByTypeAndDate(PaymentEnum.normal, LocalDate.now(), LocalDate.now())).thenReturn(paymentsDto);
         when(loanRepository.findAllByStateAndReturnDateBetween(LoanEnum.cancelled, LocalDate.now(), LocalDate.now())).thenReturn(loans);
-        ReportByCashAndDateRequestDTO request = new ReportByCashAndDateRequestDTO(LocalDate.now(), LocalDate.now());
+        ReportDatesRequestDTO request = new ReportDatesRequestDTO(LocalDate.now(), LocalDate.now());
 
         ReportTotalCashResponseDTO expected = new ReportTotalCashResponseDTO(loans,250.00,250.00);
         ReportTotalCashResponseDTO actually = loanService.findAllByTotalCash(request);
         assertThat(actually.getLoans().size()).isEqualTo(expected.getLoans().size());
+    }
+
+    @Test
+    void findMoreCareer() throws ServiceException{
+        CAREER = new Career();
+        CAREER.setId(CARRER_ID);
+        CAREER.setName(CARRER_NAME);
+
+        when(loanRepository.findMoreCareer(LocalDate.now(), LocalDate.now())).thenReturn(Optional.of(LOAN));
+        when(careerService.findByIdDto(CARRER_ID)).thenReturn(new CareerResponseDTO(CAREER));
+        List<Loan> loans = List.of(LOAN);
+        when(loanRepository.findAllByCarnet_IdCareer_Id(CARRER_ID)).thenReturn(loans);
+
+        ReportDatesRequestDTO request = new ReportDatesRequestDTO(LocalDate.now(), LocalDate.now());
+        ReportMoreCareerResponseDTO expected = new ReportMoreCareerResponseDTO(new CareerResponseDTO(CAREER),loans.stream().map(LoanResponseDTO::new).toList());
+        ReportMoreCareerResponseDTO actually = loanService.findMoreCareer(request);
+        assertThat(actually.getCareer()).isEqualToComparingFieldByFieldRecursively(expected.getCareer());
     }
 }
