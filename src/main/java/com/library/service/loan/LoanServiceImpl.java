@@ -182,4 +182,10 @@ public class LoanServiceImpl implements LoanService{
         return loanRepository.findAllByCarnet_CarnetAndStateIn(carnet, state).stream().map
                 (LoanResponseDTO::new).collect(Collectors.toList());
     }
+
+    @Override
+    public List<LoanResponseDTO> findAllByReturnNow() throws ServiceException {
+        List<Loan> loans = loanRepository.findAllByReturnDate(LocalDate.now());
+        return loans.stream().map(LoanResponseDTO::new).collect(Collectors.toList());
+    }
 }

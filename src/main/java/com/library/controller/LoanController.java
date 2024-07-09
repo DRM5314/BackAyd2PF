@@ -43,5 +43,9 @@ public class LoanController {
     public ResponseEntity<List<LoanResponseDTO>> findAllNotCancelledByCarnet(@PathVariable String carnet) throws ServiceException{
         return ResponseEntity.ok(loanService.findlAllNotCancelledByCarnet(carnet));
     }
+    @GetMapping("/return-now")
+    public ResponseEntity<List<LoanResponseDTO>> findAllByReturnNow() throws ServiceException{
+        return ResponseEntity.ok(loanService.findAllByReturnNow());
+    }
 
 }

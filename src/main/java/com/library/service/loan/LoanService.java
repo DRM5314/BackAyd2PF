@@ -17,5 +17,5 @@ public interface LoanService {
     List<LoanResponseDTO> howManyBooksLoanByStudnet(String carnet) throws ServiceException;
     List<Loan> loansUpdateFee(LocalDate dateNow) throws ServiceException;
     List<LoanResponseDTO> findlAllNotCancelledByCarnet(String carnet) throws ServiceException;
-
+    List<LoanResponseDTO> findAllByReturnNow() throws ServiceException;
 }
