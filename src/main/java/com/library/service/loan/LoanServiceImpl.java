@@ -188,4 +188,10 @@ public class LoanServiceImpl implements LoanService{
         List<Loan> loans = loanRepository.findAllByReturnDate(LocalDate.now());
         return loans.stream().map(LoanResponseDTO::new).collect(Collectors.toList());
     }
+
+    @Override
+    public List<LoanResponseDTO> finddAllBySanction() throws ServiceException {
+        List<Loan> loans = loanRepository.findAllByState(LoanEnum.sanction);
+        return loans.stream().map(LoanResponseDTO::new).collect(Collectors.toList());
+    }
 }

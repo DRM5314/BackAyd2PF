@@ -500,4 +500,17 @@ class LoanServiceImplTest {
             assertThat(actually.get(i)).isEqualToComparingFieldByFieldRecursively(new LoanResponseDTO(find.get(i)));
         }
     }
+    @Test
+    void testFindAllSanction() throws ServiceException{
+        List<Loan> find = new ArrayList<>();
+        LOAN.setState(LoanEnum.sanction);
+        find.add(LOAN);
+        when(loanRepository.findAllByState(LoanEnum.sanction)).thenReturn(find);
+        List<LoanResponseDTO> actually = loanService.finddAllBySanction();
+        assertThat(actually.size()).isEqualTo(find.size());
+        for (int i = 0; i < actually.size(); i++) {
+            assertThat(actually.get(i)).isEqualToComparingFieldByFieldRecursively(new LoanResponseDTO(find.get(i)));
+            assertThat(actually.get(i).getState()).isEqualTo(LoanEnum.sanction);
+        }
+    }
 }

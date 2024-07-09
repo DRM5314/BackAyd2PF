@@ -47,5 +47,9 @@ public class LoanController {
     public ResponseEntity<List<LoanResponseDTO>> findAllByReturnNow() throws ServiceException{
         return ResponseEntity.ok(loanService.findAllByReturnNow());
     }
+    @GetMapping("/sanction")
+    public ResponseEntity<List<LoanResponseDTO>> finddAllBySanction() throws ServiceException{
+        return ResponseEntity.ok(loanService.finddAllBySanction());
+    }
 
 }
