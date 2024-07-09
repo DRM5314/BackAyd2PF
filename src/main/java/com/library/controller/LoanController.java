@@ -2,6 +2,8 @@ package com.library.controller;
 
 import com.library.dto.loan.LoanCreateRequestDTO;
 import com.library.dto.loan.LoanResponseDTO;
+import com.library.dto.loan.ReportByCashAndDateRequestDTO;
+import com.library.dto.loan.ReportTotalCashResponseDTO;
 import com.library.enums.LoanEnum;
 import com.library.exceptions.ServiceException;
 import com.library.repository.LoanRepository;
@@ -50,6 +52,10 @@ public class LoanController {
     @GetMapping("/sanction")
     public ResponseEntity<List<LoanResponseDTO>> finddAllBySanction() throws ServiceException{
         return ResponseEntity.ok(loanService.finddAllBySanction());
+    }
+    @PostMapping("/total-cash")
+    public ResponseEntity<ReportTotalCashResponseDTO> findAllByTotalCash(@RequestBody ReportByCashAndDateRequestDTO request){
+        return ResponseEntity.ok(loanService.findAllByTotalCash(request));
     }
 
 }

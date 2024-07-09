@@ -2,7 +2,11 @@ package library.service.service;
 
 import com.library.dto.loan.LoanCreateRequestDTO;
 import com.library.dto.loan.LoanResponseDTO;
+import com.library.dto.loan.ReportByCashAndDateRequestDTO;
+import com.library.dto.loan.ReportTotalCashResponseDTO;
+import com.library.dto.payment.PaymentResponseDto;
 import com.library.enums.LoanEnum;
+import com.library.enums.PaymentEnum;
 import com.library.exceptions.LimitBookLoanStudent;
 import com.library.exceptions.NotFoundException;
 import com.library.exceptions.ServiceException;
@@ -12,6 +16,7 @@ import com.library.repository.LoanRepository;
 import com.library.service.book.BookService;
 import com.library.service.fee.FeeService;
 import com.library.service.loan.LoanServiceImpl;
+import com.library.service.payment.PaymentService;
 import com.library.service.student.StudentService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -30,6 +35,7 @@ class LoanServiceImplTest {
     private BookService bookService = mock(BookService.class);
     private LoanRepository loanRepository = mock(LoanRepository.class);
     private FeeService feeService = mock(FeeService.class);
+    private PaymentService paymentService = mock(PaymentService.class);
     private final Long ID_LOAN = 1l;
     private final LocalDate LAON_DATA = LocalDate.now();
     private final LocalDate RETURN_DATA = LocalDate.now().plusDays(3);
@@ -72,7 +78,7 @@ class LoanServiceImplTest {
     private LoanCreateRequestDTO dtoCreate;
     @BeforeEach
     void setUp() {
-        loanService = new LoanServiceImpl(studentService, bookService, loanRepository,feeService);
+        loanService = new LoanServiceImpl(studentService, bookService, loanRepository,feeService,paymentService);
 
         EDITORIAL = new Editorial();
         EDITORIAL.setId(EDITORIAL_ID);
@@ -512,5 +518,97 @@ class LoanServiceImplTest {
             assertThat(actually.get(i)).isEqualToComparingFieldByFieldRecursively(new LoanResponseDTO(find.get(i)));
             assertThat(actually.get(i).getState()).isEqualTo(LoanEnum.sanction);
         }
+    }
+    @Test
+    void allByStateAndDateBetwen(){
+        List<Loan> loans = List.of(LOAN);
+
+        Loan LOAN;
+        Long ID_LOAN = 1l;
+        LocalDate LAON_DATA = LocalDate.now();
+        LocalDate RETURN_DATA = LocalDate.now().plusDays(3);
+        LoanEnum STATE = LoanEnum.borrowed;
+        Book BOOK;
+        Long ID_BOOK = 1L;
+        String CODE_BOOK = "CODE BOOK";
+        String TITLE = "TITLE";
+        String AUTH = "AUTHOR";
+        Integer QUANTITY = 10;
+        LocalDate DATE_PUBLICATION = LocalDate.now();
+
+        Editorial EDITORIAL;
+        Long  EDITORIAL_ID = 1L;
+        String EDITORIAL_NAME = "EDITORIAL 1";
+        Student STUDENT;
+
+        Long ID_STUDENT = 1L;
+        String NAME = "DAVID";
+        LocalDate DATE_BIRD = LocalDate.now();
+        String CARNET = "201632145";
+        Integer STATUS = 1;
+        Career CAREER;
+        Long CARRER_ID = 1L;
+        String CARRER_NAME = "CARRER";
+        Double NO_FEE = 0.0;
+        Payment PAYMENT;
+        Long ID_PAYMENT = 1L;
+        PaymentEnum type = PaymentEnum.normal;
+        Double TOTAL = 100.0;
+        LocalDate DATE_PAYMENT = LocalDate.parse("2024-01-01");
+
+        EDITORIAL = new Editorial();
+        EDITORIAL.setId(EDITORIAL_ID);
+        EDITORIAL.setName(EDITORIAL_NAME);
+
+
+        BOOK = new Book();
+        BOOK.setId(ID_BOOK);
+        BOOK.setCode(CODE_BOOK);
+        BOOK.setTitle(TITLE);
+        BOOK.setAuth(AUTH);
+        BOOK.setQuantity(QUANTITY);
+        BOOK.setDatePublication(DATE_PUBLICATION);
+        BOOK.setIdEditorial(EDITORIAL);
+
+        CAREER = new Career();
+        CAREER.setId(CARRER_ID);
+        CAREER.setName(CARRER_NAME);
+
+        STUDENT = new Student();
+        STUDENT.setId(ID_STUDENT);
+        STUDENT.setName(NAME);
+        STUDENT.setIdCareer(CAREER);
+        STUDENT.setDteBirth(DATE_BIRD);
+        STUDENT.setCarnet(CARNET);
+        STUDENT.setStatus(STATUS);
+
+        LOAN = new Loan();
+        LOAN.setId(ID_LOAN);
+        LOAN.setBookCode(BOOK);
+        LOAN.setCarnet(STUDENT);
+        LOAN.setLaonDate(LAON_DATA);
+        LOAN.setReturnDate(RETURN_DATA);
+        LOAN.setState(STATE);
+        LOAN.setLoan_fee(NO_FEE);
+        LOAN.setPenalized_fee(NO_FEE);
+        LOAN.setSanction_fee(NO_FEE);
+
+        PAYMENT = new Payment();
+        PAYMENT.setId(ID_PAYMENT);
+        PAYMENT.setLoan(LOAN);
+        PAYMENT.setType(type);
+        PAYMENT.setTotal(TOTAL);
+        PAYMENT.setDatePayment(DATE_PAYMENT);
+
+        List<Payment> payments = List.of(PAYMENT);
+        List<PaymentResponseDto> paymentsDto = payments.stream().map(PaymentResponseDto::new).toList();
+        when(paymentService.findAllByTypeAndDate(PaymentEnum.normal, LocalDate.now(), LocalDate.now())).thenReturn(paymentsDto);
+        when(paymentService.findAllByTypeAndDate(PaymentEnum.normal, LocalDate.now(), LocalDate.now())).thenReturn(paymentsDto);
+        when(loanRepository.findAllByStateAndReturnDateBetween(LoanEnum.cancelled, LocalDate.now(), LocalDate.now())).thenReturn(loans);
+        ReportByCashAndDateRequestDTO request = new ReportByCashAndDateRequestDTO(LocalDate.now(), LocalDate.now());
+
+        ReportTotalCashResponseDTO expected = new ReportTotalCashResponseDTO(loans,250.00,250.00);
+        ReportTotalCashResponseDTO actually = loanService.findAllByTotalCash(request);
+        assertThat(actually.getLoans().size()).isEqualTo(expected.getLoans().size());
     }
 }

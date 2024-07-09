@@ -2,22 +2,25 @@ package com.library.service.loan;
 
 import com.library.dto.loan.LoanCreateRequestDTO;
 import com.library.dto.loan.LoanResponseDTO;
+import com.library.dto.loan.ReportByCashAndDateRequestDTO;
+import com.library.dto.loan.ReportTotalCashResponseDTO;
+import com.library.dto.payment.PaymentResponseDto;
 import com.library.enums.LoanEnum;
+import com.library.enums.PaymentEnum;
 import com.library.exceptions.LimitBookLoanStudent;
 import com.library.exceptions.NotFoundException;
 import com.library.exceptions.ServiceException;
 import com.library.exceptions.StudentInactive;
-import com.library.model.Book;
-import com.library.model.FeeUpdateHistory;
-import com.library.model.Loan;
-import com.library.model.Student;
+import com.library.model.*;
 import com.library.repository.LoanRepository;
 import com.library.service.book.BookService;
 import com.library.service.fee.FeeService;
+import com.library.service.payment.PaymentService;
 import com.library.service.student.StudentService;
 import jakarta.annotation.PostConstruct;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -37,12 +40,14 @@ public class LoanServiceImpl implements LoanService{
     private BookService bookService;
     private LoanRepository loanRepository;
     private FeeService feeService;
+    private PaymentService paymentService;
     @Autowired
-    public LoanServiceImpl(StudentService studentService, BookService bookService,LoanRepository loanRepository,FeeService feeService){
+    public LoanServiceImpl(StudentService studentService, BookService bookService,LoanRepository loanRepository,FeeService feeService,@Lazy PaymentService paymentService){
         this.studentService = studentService;
         this.bookService = bookService;
         this.loanRepository = loanRepository;
         this.feeService = feeService;
+        this.paymentService = paymentService;
     }
     @PostConstruct
     @Transactional
@@ -193,5 +198,13 @@ public class LoanServiceImpl implements LoanService{
     public List<LoanResponseDTO> finddAllBySanction() throws ServiceException {
         List<Loan> loans = loanRepository.findAllByState(LoanEnum.sanction);
         return loans.stream().map(LoanResponseDTO::new).collect(Collectors.toList());
+    }
+
+    @Override
+    public ReportTotalCashResponseDTO findAllByTotalCash(ReportByCashAndDateRequestDTO request) {
+        List<Loan> loans = loanRepository.findAllByStateAndReturnDateBetween(LoanEnum.cancelled,request.getInit(),request.getEnd());
+        Double totalCash = paymentService.findAllByTypeAndDate(PaymentEnum.normal,request.getInit(),request.getEnd()).stream().map(PaymentResponseDto::getTotal).reduce(0.0, Double::sum);
+        Double totalCashSanction = paymentService.findAllByType(PaymentEnum.sanction).stream().map(PaymentResponseDto::getTotal).reduce(0.0, Double::sum);
+        return new ReportTotalCashResponseDTO(loans, totalCashSanction, totalCash);
     }
 }
