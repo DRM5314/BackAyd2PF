@@ -10,7 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
+import java.util.List;
 @RestController
 @RequestMapping("/loan")
 @PreAuthorize("hasAuthority('ADMIN')")
@@ -37,6 +37,11 @@ public class LoanController {
     @PutMapping("/{id}/{state}")
     public ResponseEntity<LoanResponseDTO> update(@PathVariable Long id, @PathVariable LoanEnum state) throws ServiceException{
         return ResponseEntity.ok(loanService.update(id,state));
+    }
+
+    @GetMapping("/not-cancell-by-carnet/{carnet}")
+    public ResponseEntity<List<LoanResponseDTO>> findAllNotCancelledByCarnet(@PathVariable String carnet) throws ServiceException{
+        return ResponseEntity.ok(loanService.findlAllNotCancelledByCarnet(carnet));
     }
 
 }

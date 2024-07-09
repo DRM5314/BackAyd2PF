@@ -22,4 +22,5 @@ public interface LoanRepository extends CrudRepository<Loan,Long> {
     //7 Prestamos activos de un estudiante - 10 Estudiantes que estan en sancion
     List<Loan> findAllByStateAndCarnet_Carnet(LoanEnum state,String carnet);
     List<Loan> findAllByReturnDateLessThanAndStateNotIn(LocalDate returnDate, Collection<LoanEnum> state);
+    List<Loan> findAllByCarnet_CarnetAndStateIn(String carnet, Collection<LoanEnum> state);
 }

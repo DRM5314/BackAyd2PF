@@ -476,4 +476,17 @@ class LoanServiceImplTest {
             assertThat(actually.get(i)).isEqualToComparingFieldByFieldRecursively(expected.get(i));
         }
     }
+    @Test
+    void testFindAllByCarneAndStates() throws ServiceException{
+        Collection<LoanEnum> states = Arrays.asList(LoanEnum.borrowed,LoanEnum.penalized,LoanEnum.sanction);
+        List<Loan> expected = new ArrayList<>();
+        LOAN.setLoan_fee(FEE_THREE_DAYS);
+        expected.add(LOAN);
+        when(loanRepository.findAllByCarnet_CarnetAndStateIn(CARNET,states)).thenReturn(expected);
+        List<LoanResponseDTO> actually = loanService.findlAllNotCancelledByCarnet(CARNET);
+        assertThat(actually.size()).isEqualTo(expected.size());
+        for (int i = 0; i < actually.size(); i++) {
+            assertThat(actually.get(i)).isEqualToComparingFieldByFieldRecursively(new LoanResponseDTO(expected.get(i)));
+        }
+    }
 }

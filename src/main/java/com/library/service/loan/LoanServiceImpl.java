@@ -17,7 +17,6 @@ import com.library.service.fee.FeeService;
 import com.library.service.student.StudentService;
 import jakarta.annotation.PostConstruct;
 import jakarta.transaction.Transactional;
-import org.aspectj.lang.annotation.Before;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -25,6 +24,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -174,5 +174,12 @@ public class LoanServiceImpl implements LoanService{
         feeUpdateHistory.setDate(LocalDate.now());
         feeService.save(feeUpdateHistory);
         return loans;
+    }
+
+    @Override
+    public List<LoanResponseDTO> findlAllNotCancelledByCarnet(String carnet) throws ServiceException {
+        Collection<LoanEnum> state = Arrays.asList(LoanEnum.borrowed,LoanEnum.penalized,LoanEnum.sanction);
+        return loanRepository.findAllByCarnet_CarnetAndStateIn(carnet, state).stream().map
+                (LoanResponseDTO::new).collect(Collectors.toList());
     }
 }
