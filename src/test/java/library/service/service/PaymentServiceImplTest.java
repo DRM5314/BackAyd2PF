@@ -23,6 +23,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.*;
 
 import static org.mockito.Mockito.when;
+import java.util.List;
 
 public class PaymentServiceImplTest {
     private LoanService loanService = Mockito.mock(LoanService.class);
@@ -134,5 +135,29 @@ public class PaymentServiceImplTest {
         PaymentResponseDto expected = new PaymentResponseDto(PAYMENT);
         PaymentResponseDto actually = paymentService.findById(ID_PAYMENT);
         assertThat(expected).isEqualToComparingFieldByFieldRecursively(actually);
+    }
+    @Test
+    void findByStateAndDate() {
+        PAYMENT.setType(PaymentEnum.sanction);
+        when(paymentRepository.findAllByTypeAndDatePaymentBetween(type, DATE_PAYMENT, DATE_PAYMENT)).thenReturn(List.of(PAYMENT));
+        List<PaymentResponseDto> expected = List.of(new PaymentResponseDto(PAYMENT));
+        List<PaymentResponseDto> actually = paymentService.findAllByTypeAndDate(type, DATE_PAYMENT, DATE_PAYMENT);
+        assertThat(actually.size()).isEqualTo(expected.size());
+        for (int i = 0; i < actually.size(); i++) {
+            assertThat(expected.get(i)).isEqualToComparingFieldByFieldRecursively(actually.get(i));
+            assertThat(expected.get(i).getType()).isEqualTo(PaymentEnum.sanction);
+        }
+    }
+    @Test
+    void findByState() {
+        PAYMENT.setType(PaymentEnum.sanction);
+        when(paymentRepository.findAllByType(type)).thenReturn(List.of(PAYMENT));
+        List<PaymentResponseDto> expected = List.of(new PaymentResponseDto(PAYMENT));
+        List<PaymentResponseDto> actually = paymentService.findAllByType(type);
+        assertThat(actually.size()).isEqualTo(expected.size());
+        for (int i = 0; i < actually.size(); i++) {
+            assertThat(expected.get(i)).isEqualToComparingFieldByFieldRecursively(actually.get(i));
+            assertThat(expected.get(i).getType()).isEqualTo(PaymentEnum.sanction);
+        }
     }
 }
