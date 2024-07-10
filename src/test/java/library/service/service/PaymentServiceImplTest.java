@@ -1,8 +1,7 @@
 package library.service.service;
 
-import com.library.dto.loan.LoanCreateRequestDTO;
 import com.library.dto.loan.ReportDatesAndCarnetRequestDTO;
-import com.library.dto.loan.ReportMoreStudentResponseDTO;
+import com.library.dto.payment.ReportPaymentSanctionVsLoanResponseDTO;
 import com.library.dto.payment.PaymentCreateRequestDTO;
 import com.library.dto.payment.PaymentResponseDto;
 import com.library.enums.LoanEnum;
@@ -12,9 +11,7 @@ import com.library.exceptions.ServiceException;
 import com.library.model.*;
 import com.library.repository.PaymentRepository;
 import com.library.service.loan.LoanService;
-import com.library.service.loan.LoanServiceImpl;
 import com.library.service.payment.PaymentServiceImpl;
-import org.junit.Assert;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -165,9 +162,9 @@ public class PaymentServiceImplTest {
     @Test
     void findMoreStudent() throws ServiceException {
         when(paymentRepository.findMoreStudent(CARNET, PaymentEnum.sanction, DATE_PAYMENT, DATE_PAYMENT)).thenReturn(List.of(PAYMENT));
-        ReportMoreStudentResponseDTO expected = new ReportMoreStudentResponseDTO(List.of(PAYMENT));
+        ReportPaymentSanctionVsLoanResponseDTO expected = new ReportPaymentSanctionVsLoanResponseDTO(List.of(PAYMENT));
         ReportDatesAndCarnetRequestDTO request = new ReportDatesAndCarnetRequestDTO(CARNET, DATE_PAYMENT, DATE_PAYMENT);
-        ReportMoreStudentResponseDTO actually = paymentService.findMoreStudent(request);
+        ReportPaymentSanctionVsLoanResponseDTO actually = paymentService.findMoreStudent(request);
         assertThat(expected).isEqualToComparingFieldByFieldRecursively(actually);
     }
 }

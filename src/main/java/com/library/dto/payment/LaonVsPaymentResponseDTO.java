@@ -1,5 +1,6 @@
-package com.library.dto.loan;
+package com.library.dto.payment;
 
+import com.library.dto.loan.LoanResponseDTO;
 import com.library.enums.PaymentEnum;
 import com.library.model.Loan;
 import lombok.AllArgsConstructor;

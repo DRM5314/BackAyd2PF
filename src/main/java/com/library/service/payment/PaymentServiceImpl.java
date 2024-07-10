@@ -1,15 +1,13 @@
 package com.library.service.payment;
 
 import com.library.dto.loan.ReportDatesAndCarnetRequestDTO;
-import com.library.dto.loan.ReportMoreStudentResponseDTO;
+import com.library.dto.payment.ReportPaymentSanctionVsLoanResponseDTO;
 import com.library.dto.payment.PaymentCreateRequestDTO;
 import com.library.dto.payment.PaymentResponseDto;
 import com.library.enums.PaymentEnum;
 import com.library.exceptions.NotFoundException;
 import com.library.exceptions.ServiceException;
-import com.library.model.Loan;
 import com.library.model.Payment;
-import com.library.model.Student;
 import com.library.repository.PaymentRepository;
 import com.library.service.loan.LoanService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,8 +58,8 @@ public class PaymentServiceImpl implements PaymentService{
     }
 
     @Override
-    public ReportMoreStudentResponseDTO findMoreStudent(ReportDatesAndCarnetRequestDTO request) throws ServiceException {
+    public ReportPaymentSanctionVsLoanResponseDTO findMoreStudent(ReportDatesAndCarnetRequestDTO request) throws ServiceException {
         List<Payment> payments = paymentRepository.findMoreStudent(request.getCarnet(),PaymentEnum.sanction,request.getInit(),request.getEnd());
-        return new ReportMoreStudentResponseDTO(payments);
+        return new ReportPaymentSanctionVsLoanResponseDTO(payments);
     }
 }

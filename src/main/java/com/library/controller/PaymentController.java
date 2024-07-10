@@ -1,7 +1,7 @@
 package com.library.controller;
 
 import com.library.dto.loan.ReportDatesAndCarnetRequestDTO;
-import com.library.dto.loan.ReportMoreStudentResponseDTO;
+import com.library.dto.payment.ReportPaymentSanctionVsLoanResponseDTO;
 import com.library.dto.payment.PaymentCreateRequestDTO;
 import com.library.dto.payment.PaymentResponseDto;
 import com.library.exceptions.ServiceException;
@@ -30,7 +30,7 @@ public class PaymentController {
         return ResponseEntity.ok(paymentService.findById(id));
     }
     @PostMapping("/more-student")
-    public ResponseEntity<ReportMoreStudentResponseDTO> findMoreStudentPaymenst(@RequestBody ReportDatesAndCarnetRequestDTO request) throws ServiceException{
+    public ResponseEntity<ReportPaymentSanctionVsLoanResponseDTO> findMoreStudentPaymenst(@RequestBody ReportDatesAndCarnetRequestDTO request) throws ServiceException{
         return ResponseEntity.ok(paymentService.findMoreStudent(request));
     }
 }

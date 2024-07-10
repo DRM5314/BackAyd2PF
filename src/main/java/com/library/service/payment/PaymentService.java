@@ -1,7 +1,7 @@
 package com.library.service.payment;
 
 import com.library.dto.loan.ReportDatesAndCarnetRequestDTO;
-import com.library.dto.loan.ReportMoreStudentResponseDTO;
+import com.library.dto.payment.ReportPaymentSanctionVsLoanResponseDTO;
 import com.library.dto.payment.PaymentCreateRequestDTO;
 import com.library.dto.payment.PaymentResponseDto;
 import com.library.enums.PaymentEnum;
@@ -14,5 +14,5 @@ public interface PaymentService {
     PaymentResponseDto findById(Long id) throws ServiceException;
     List<PaymentResponseDto> findAllByType(PaymentEnum type);
     List<PaymentResponseDto> findAllByTypeAndDate(PaymentEnum type, LocalDate init, LocalDate end);
-    ReportMoreStudentResponseDTO findMoreStudent(ReportDatesAndCarnetRequestDTO request) throws ServiceException;
+    ReportPaymentSanctionVsLoanResponseDTO findMoreStudent(ReportDatesAndCarnetRequestDTO request) throws ServiceException;
 }
