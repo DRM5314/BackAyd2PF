@@ -20,4 +20,5 @@ public interface LoanService {
     List<LoanResponseDTO> finddAllBySanction() throws ServiceException;
     ReportTotalCashResponseDTO findAllByTotalCash(ReportDatesRequestDTO request);
     ReportMoreCareerResponseDTO findMoreCareer(ReportDatesRequestDTO request) throws ServiceException;
+    ReportStudentMoreLoansResponseDTO findMoreStudent(ReportDatesRequestDTO request) throws ServiceException;
 }

@@ -217,4 +217,14 @@ public class LoanServiceImpl implements LoanService{
         List<LoanResponseDTO> loans = loanRepository.findAllByCarnet_IdCareer_Id(loan.getCarnet().getIdCareer().getId()).stream().map(LoanResponseDTO::new).collect(Collectors.toList());
         return new ReportMoreCareerResponseDTO(careerResponseDTO,loans,loans.size());
     }
+
+    @Override
+    public ReportStudentMoreLoansResponseDTO findMoreStudent(ReportDatesRequestDTO request) throws ServiceException {
+        Loan loan = loanRepository.findMoreStudent(request.getInit(),request.getEnd()).orElseThrow(()->
+                new NotFoundException(String.format("Not reports!")
+                ));
+        Student student = loan.getCarnet();
+        List<Loan> loans = loanRepository.findAllByCarnet_Carnet(student.getCarnet());
+        return new ReportStudentMoreLoansResponseDTO(student,loans);
+    }
 }

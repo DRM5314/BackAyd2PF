@@ -628,4 +628,26 @@ class LoanServiceImplTest {
         ReportMoreCareerResponseDTO actually = loanService.findMoreCareer(request);
         assertThat(actually.getCareer()).isEqualToComparingFieldByFieldRecursively(expected.getCareer());
     }
+    @Test
+    void findMoreCareerNotFound(){
+        when(loanRepository.findMoreCareer(LocalDate.now(), LocalDate.now())).thenReturn(Optional.empty());
+        ReportDatesRequestDTO request = new ReportDatesRequestDTO(LocalDate.now(), LocalDate.now());
+        Assertions.assertThrows(NotFoundException.class,()->loanService.findMoreCareer(request));
+    }
+    @Test
+    void findMoreStudentNoFound(){
+        when(loanRepository.findMoreCareer(LocalDate.now(), LocalDate.now())).thenReturn(Optional.empty());
+        ReportDatesRequestDTO request = new ReportDatesRequestDTO(LocalDate.now(), LocalDate.now());;
+        Assertions.assertThrows(NotFoundException.class,()->loanService.findMoreStudent(request));
+    }
+    @Test
+    void findMoreStudentLoans() throws ServiceException{
+        when(loanRepository.findMoreStudent(LocalDate.now(), LocalDate.now())).thenReturn(Optional.of(LOAN));
+        when(loanRepository.findAllByCarnet_Carnet(CARNET)).thenReturn(List.of(LOAN));
+        ReportDatesRequestDTO request = new ReportDatesRequestDTO(LocalDate.now(), LocalDate.now());;
+        ReportStudentMoreLoansResponseDTO expected = new ReportStudentMoreLoansResponseDTO(STUDENT,List.of(LOAN));
+        ReportStudentMoreLoansResponseDTO actually = loanService.findMoreStudent(request);
+        assertThat(actually.getStudent()).isEqualToComparingFieldByFieldRecursively(expected.getStudent());
+        assertThat(actually.getTotalLoans()).isEqualTo(expected.getTotalLoans());
+    }
 }

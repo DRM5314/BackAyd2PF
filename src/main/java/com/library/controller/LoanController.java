@@ -57,5 +57,9 @@ public class LoanController {
     public ResponseEntity<ReportMoreCareerResponseDTO> findMoreCareer(@RequestBody ReportDatesRequestDTO request) throws ServiceException{
         return ResponseEntity.ok(loanService.findMoreCareer(request));
     }
+    @PostMapping("/more-student")
+    public ResponseEntity<ReportStudentMoreLoansResponseDTO> findMoreStudent(@RequestBody ReportDatesRequestDTO request) throws ServiceException{
+        return ResponseEntity.ok(loanService.findMoreStudent(request));
+    }
 
 }
