@@ -1,6 +1,8 @@
 package library.service.service;
 
 import com.library.dto.loan.LoanCreateRequestDTO;
+import com.library.dto.loan.ReportDatesAndCarnetRequestDTO;
+import com.library.dto.loan.ReportMoreStudentResponseDTO;
 import com.library.dto.payment.PaymentCreateRequestDTO;
 import com.library.dto.payment.PaymentResponseDto;
 import com.library.enums.LoanEnum;
@@ -159,5 +161,13 @@ public class PaymentServiceImplTest {
             assertThat(expected.get(i)).isEqualToComparingFieldByFieldRecursively(actually.get(i));
             assertThat(expected.get(i).getType()).isEqualTo(PaymentEnum.sanction);
         }
+    }
+    @Test
+    void findMoreStudent() throws ServiceException {
+        when(paymentRepository.findMoreStudent(CARNET, PaymentEnum.sanction, DATE_PAYMENT, DATE_PAYMENT)).thenReturn(List.of(PAYMENT));
+        ReportMoreStudentResponseDTO expected = new ReportMoreStudentResponseDTO(List.of(PAYMENT));
+        ReportDatesAndCarnetRequestDTO request = new ReportDatesAndCarnetRequestDTO(CARNET, DATE_PAYMENT, DATE_PAYMENT);
+        ReportMoreStudentResponseDTO actually = paymentService.findMoreStudent(request);
+        assertThat(expected).isEqualToComparingFieldByFieldRecursively(actually);
     }
 }
