@@ -607,7 +607,7 @@ class LoanServiceImplTest {
         when(loanRepository.findAllByStateAndReturnDateBetween(LoanEnum.cancelled, LocalDate.now(), LocalDate.now())).thenReturn(loans);
         ReportDatesRequestDTO request = new ReportDatesRequestDTO(LocalDate.now(), LocalDate.now());
 
-        ReportTotalCashResponseDTO expected = new ReportTotalCashResponseDTO(loans,250.00,250.00);
+        ReportTotalCashResponseDTO expected = new ReportTotalCashResponseDTO(loans,250.00,250.00,250.00);
         ReportTotalCashResponseDTO actually = loanService.findAllByTotalCash(request);
         assertThat(actually.getLoans().size()).isEqualTo(expected.getLoans().size());
     }
@@ -624,7 +624,7 @@ class LoanServiceImplTest {
         when(loanRepository.findAllByCarnet_IdCareer_Id(CARRER_ID)).thenReturn(loans);
 
         ReportDatesRequestDTO request = new ReportDatesRequestDTO(LocalDate.now(), LocalDate.now());
-        ReportMoreCareerResponseDTO expected = new ReportMoreCareerResponseDTO(new CareerResponseDTO(CAREER),loans.stream().map(LoanResponseDTO::new).toList());
+        ReportMoreCareerResponseDTO expected = new ReportMoreCareerResponseDTO(new CareerResponseDTO(CAREER),loans.stream().map(LoanResponseDTO::new).toList(),1);
         ReportMoreCareerResponseDTO actually = loanService.findMoreCareer(request);
         assertThat(actually.getCareer()).isEqualToComparingFieldByFieldRecursively(expected.getCareer());
     }

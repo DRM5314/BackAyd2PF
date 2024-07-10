@@ -204,7 +204,8 @@ public class LoanServiceImpl implements LoanService{
         List<Loan> loans = loanRepository.findAllByStateAndReturnDateBetween(LoanEnum.cancelled,request.getInit(),request.getEnd());
         Double totalCash = paymentService.findAllByTypeAndDate(PaymentEnum.normal,request.getInit(),request.getEnd()).stream().map(PaymentResponseDto::getTotal).reduce(0.0, Double::sum);
         Double totalCashSanction = paymentService.findAllByType(PaymentEnum.sanction).stream().map(PaymentResponseDto::getTotal).reduce(0.0, Double::sum);
-        return new ReportTotalCashResponseDTO(loans, totalCashSanction, totalCash);
+        Double totalCashPenalized = paymentService.findAllByType(PaymentEnum.penalized).stream().map(PaymentResponseDto::getTotal).reduce(0.0, Double::sum);
+        return new ReportTotalCashResponseDTO(loans, totalCashSanction, totalCash,totalCashPenalized);
     }
 
     @Override
@@ -214,6 +215,6 @@ public class LoanServiceImpl implements LoanService{
                 ));
         CareerResponseDTO careerResponseDTO = careerService.findByIdDto(loan.getCarnet().getIdCareer().getId());
         List<LoanResponseDTO> loans = loanRepository.findAllByCarnet_IdCareer_Id(loan.getCarnet().getIdCareer().getId()).stream().map(LoanResponseDTO::new).collect(Collectors.toList());
-        return new ReportMoreCareerResponseDTO(careerResponseDTO,loans);
+        return new ReportMoreCareerResponseDTO(careerResponseDTO,loans,loans.size());
     }
 }
