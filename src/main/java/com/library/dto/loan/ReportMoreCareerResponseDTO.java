@@ -9,4 +9,5 @@ import java.util.List;
 public class ReportMoreCareerResponseDTO {
     private final CareerResponseDTO career;
     private final List<LoanResponseDTO> loans;
+    private final int totalLoans;
 }
