@@ -65,7 +65,7 @@ pipeline{
         post {
             failure {
                 emailext(
-                    subject: "- Build # $BUILD_NUMBER - ${currentBuild.currentResult}! in branch",
+                    subject: "- In backend Build # $BUILD_NUMBER - ${currentBuild.currentResult}! in branch",
                     mimeType: 'text/html',
                     to: "${env.EMAIL}",
                     body: " - Build # $BUILD_NUMBER - ${currentBuild.currentResult}:\n\n\t\tCheck console output at $BUILD_URL to view the results."
@@ -73,7 +73,7 @@ pipeline{
             }
             success {
                 emailext(
-                    subject: "- Build # $BUILD_NUMBER - ${currentBuild.currentResult}!",
+                    subject: "- in backend Build # $BUILD_NUMBER - ${currentBuild.currentResult}!",
                     mimeType: 'text/html',
                     to: "${env.EMAIL}",
                     body: " - Build # $BUILD_NUMBER - ${currentBuild.currentResult}:\n\n\t\tCheck console output at $BUILD_URL to view the results."
