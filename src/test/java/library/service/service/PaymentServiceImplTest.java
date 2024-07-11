@@ -1,5 +1,6 @@
 package library.service.service;
 
+import com.library.dto.loan.LoanResponseDTO;
 import com.library.dto.loan.ReportDatesAndCarnetRequestDTO;
 import com.library.dto.payment.ReportPaymentSanctionVsLoanResponseDTO;
 import com.library.dto.payment.PaymentCreateRequestDTO;
@@ -10,8 +11,10 @@ import com.library.exceptions.NotFoundException;
 import com.library.exceptions.ServiceException;
 import com.library.model.*;
 import com.library.repository.PaymentRepository;
+import com.library.service.book.BookService;
 import com.library.service.loan.LoanService;
 import com.library.service.payment.PaymentServiceImpl;
+import com.library.service.student.StudentService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -27,6 +30,8 @@ import java.util.List;
 public class PaymentServiceImplTest {
     private LoanService loanService = Mockito.mock(LoanService.class);
     private PaymentRepository paymentRepository = Mockito.mock(PaymentRepository.class);
+    private BookService bookService = Mockito.mock(BookService.class);
+    private StudentService studentService = Mockito.mock(StudentService.class);
 
     private PaymentServiceImpl paymentService;
     private Loan LOAN;
@@ -66,7 +71,7 @@ public class PaymentServiceImplTest {
 
     @BeforeEach
     void setUp() {
-         paymentService = new PaymentServiceImpl(paymentRepository, loanService);
+        paymentService = new PaymentServiceImpl(paymentRepository, loanService, bookService, studentService);
 
         EDITORIAL = new Editorial();
         EDITORIAL.setId(EDITORIAL_ID);
@@ -114,9 +119,40 @@ public class PaymentServiceImplTest {
     }
 
     @Test
-    void saveSuccessful() throws ServiceException {
-        PaymentCreateRequestDTO request = new PaymentCreateRequestDTO(ID_LOAN, type, TOTAL, DATE_PAYMENT);
+    void testMapEnum(){
+        assertThat(paymentService.mapLoanToPayment(LoanEnum.cancelled)).isEqualTo(PaymentEnum.normal);
+        assertThat(paymentService.mapLoanToPayment(LoanEnum.borrowed)).isEqualTo(PaymentEnum.normal);
+        assertThat(paymentService.mapLoanToPayment(LoanEnum.penalized)).isEqualTo(PaymentEnum.penalized);
+        assertThat(paymentService.mapLoanToPayment(LoanEnum.sanction)).isEqualTo(PaymentEnum.sanction);
+    }
+    @Test
+    void LoanCancelled() throws ServiceException{
+        PaymentCreateRequestDTO request = new PaymentCreateRequestDTO(ID_LOAN, type);
+        LOAN.setState(LoanEnum.cancelled);
         when(loanService.findByCodeNotDto(ID_LOAN)).thenReturn(LOAN);
+        Assertions.assertThrows(ServiceException.class, () -> paymentService.save(request));
+    }
+    @Test
+    void saveSuccessfulNormal() throws ServiceException {
+        PaymentCreateRequestDTO request = new PaymentCreateRequestDTO(ID_LOAN, type);
+        when(loanService.findByCodeNotDto(ID_LOAN)).thenReturn(LOAN);
+        when(loanService.update(ID_LOAN, LoanEnum.cancelled)).thenReturn(new LoanResponseDTO(LOAN));
+        when(bookService.updateReturn(LOAN.getBookCode())).thenReturn(BOOK);
+        when(paymentRepository.save(Mockito.any(Payment.class))).thenReturn(PAYMENT);
+        PaymentResponseDto expected = new PaymentResponseDto(PAYMENT);
+        PaymentResponseDto actually = paymentService.save(request);
+        assertThat(expected).isEqualToComparingFieldByFieldRecursively(actually);
+    }
+
+    @Test
+    void saveSuccessfulPenalized() throws ServiceException{
+        LOAN.setState(LoanEnum.penalized);
+        PaymentCreateRequestDTO request = new PaymentCreateRequestDTO(ID_LOAN, type);
+        when(loanService.findByCodeNotDto(ID_LOAN)).thenReturn(LOAN);
+        when(studentService.findStudentByCarnetNotDto(CARNET)).thenReturn(STUDENT);
+        when(studentService.updateNoDto(STUDENT)).thenReturn(STUDENT);
+        when(loanService.update(ID_LOAN, LoanEnum.cancelled)).thenReturn(new LoanResponseDTO(LOAN));
+        when(bookService.updateReturn(LOAN.getBookCode())).thenReturn(BOOK);
         when(paymentRepository.save(Mockito.any(Payment.class))).thenReturn(PAYMENT);
         PaymentResponseDto expected = new PaymentResponseDto(PAYMENT);
         PaymentResponseDto actually = paymentService.save(request);

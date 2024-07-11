@@ -12,6 +12,4 @@ import java.time.LocalDate;
 public class PaymentCreateRequestDTO {
     private Long loan;
     private PaymentEnum type;
-    private Double total;
-    private LocalDate datePayment;
 }

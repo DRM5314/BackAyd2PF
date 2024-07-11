@@ -114,7 +114,7 @@ public class PaymentControllerTest extends AbstractMvcTest{
     @Test
     @WithMockUser(username = "admin", authorities = {"ADMIN"})
     void saveWithLoanNotExist() throws Exception{
-        PaymentCreateRequestDTO request = new PaymentCreateRequestDTO(ID_LOAN, TYPE_PAYMENT, TOTAL, DATE_PAYMENT);
+        PaymentCreateRequestDTO request = new PaymentCreateRequestDTO(ID_LOAN, TYPE_PAYMENT);
         PaymentResponseDto expected = new PaymentResponseDto(PAYMENT);
         Mockito.when(paymentService.save(any(PaymentCreateRequestDTO.class))).thenReturn(expected);
         mockMvc.perform(post("/payment")
