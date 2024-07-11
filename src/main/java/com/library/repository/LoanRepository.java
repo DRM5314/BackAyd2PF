@@ -22,7 +22,7 @@ public interface LoanRepository extends CrudRepository<Loan,Long> {
     //4 Moras de un estudiante pagados
     List<Loan> findAllByCarnet_CarnetAndStateAndReturnDateBetween(String carnet, LoanEnum state, LocalDate init, LocalDate end);
     //7 Prestamos activos de un estudiante - 10 Estudiantes que estan en sancion
-    List<Loan> findAllByStateAndCarnet_Carnet(LoanEnum state,String carnet);
+    List<Loan> findAllByStateIsNotAndCarnet_Carnet(LoanEnum state, String carnet);
     List<Loan> findAllByReturnDateLessThanAndStateNotIn(LocalDate returnDate, Collection<LoanEnum> state);
     List<Loan> findAllByCarnet_CarnetAndStateIn(String carnet, Collection<LoanEnum> state);
     @Query ("SELECT l, COUNT(l) as suma FROM Loan l INNER JOIN Student s on l.carnet.idCareer.id = s.idCareer.id where  l.laonDate between :i and :e group by l.carnet.idCareer.id order by suma desc limit 1")

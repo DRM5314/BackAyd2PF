@@ -126,7 +126,7 @@ class LoanServiceImplTest {
         response.add(LOAN);
 
         when(studentService.isActive(CARNET)).thenReturn(true);
-        when(loanRepository.findAllByStateAndCarnet_Carnet(LoanEnum.borrowed,CARNET)).thenReturn(response);
+        when(loanRepository.findAllByStateIsNotAndCarnet_Carnet(LoanEnum.cancelled,CARNET)).thenReturn(response);
         when(bookService.findByCodeNotDTO(CODE_BOOK)).thenReturn(BOOK);
         when(studentService.findStudentByCarnetNotDto(CARNET)).thenReturn(STUDENT);
 
@@ -145,7 +145,7 @@ class LoanServiceImplTest {
     void saveWithBookNotSupply() throws ServiceException{
         BOOK.setQuantity(0);
         when(studentService.isActive(CARNET)).thenReturn(true);
-        when(loanRepository.findAllByStateAndCarnet_Carnet(LoanEnum.borrowed,CARNET)).thenReturn(new ArrayList<>(0));
+        when(loanRepository.findAllByStateIsNotAndCarnet_Carnet(LoanEnum.cancelled,CARNET)).thenReturn(new ArrayList<>(0));
         when(bookService.findByCodeNotDTO(CODE_BOOK)).thenReturn(BOOK);
         Assertions.assertThrows(LimitBookLoanStudent.class,()->loanService.save(dtoCreate));
     }
@@ -161,7 +161,7 @@ class LoanServiceImplTest {
         list.add((LOAN));
         list.add((LOAN));
         when(studentService.isActive(CARNET)).thenReturn(true);
-        when(loanRepository.findAllByStateAndCarnet_Carnet(LoanEnum.borrowed,CARNET)).thenReturn(list);
+        when(loanRepository.findAllByStateIsNotAndCarnet_Carnet(LoanEnum.cancelled,CARNET)).thenReturn(list);
         Assertions.assertThrows(LimitBookLoanStudent.class,()->loanService.save(dtoCreate));
     }
 
@@ -489,10 +489,13 @@ class LoanServiceImplTest {
         LOAN.setLoan_fee(FEE_THREE_DAYS);
         expected.add(LOAN);
         when(loanRepository.findAllByCarnet_CarnetAndStateIn(CARNET,states)).thenReturn(expected);
-        List<LoanResponseDTO> actually = loanService.findlAllNotCancelledByCarnet(CARNET);
-        assertThat(actually.size()).isEqualTo(expected.size());
-        for (int i = 0; i < actually.size(); i++) {
-            assertThat(actually.get(i)).isEqualToComparingFieldByFieldRecursively(new LoanResponseDTO(expected.get(i)));
+        when(studentService.findStudentByCarnetNotDto(CARNET)).thenReturn(STUDENT);
+        ReportStudentNotCanlledLoanResponseDTO actually = loanService.findlAllNotCancelledByCarnet(CARNET);
+        ReportStudentNotCanlledLoanResponseDTO expected1 = new ReportStudentNotCanlledLoanResponseDTO(STUDENT,expected);
+        assertThat(actually.getStudent()).isEqualToComparingFieldByFieldRecursively(expected1.getStudent());
+        assertThat(actually.getLoans().size()).isEqualTo(expected.size());
+        for (int i = 0; i < actually.getLoans().size(); i++) {
+            assertThat(actually.getLoans().get(i)).isEqualToComparingFieldByFieldRecursively(new LoanResponseDTO(expected.get(i)));
         }
     }
     @Test

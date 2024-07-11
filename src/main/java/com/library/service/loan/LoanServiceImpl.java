@@ -110,7 +110,7 @@ public class LoanServiceImpl implements LoanService{
     }
     @Override
     public List<LoanResponseDTO> howManyBooksLoanByStudnet(String carnet) throws ServiceException {
-        return loanRepository.findAllByStateAndCarnet_Carnet(LoanEnum.borrowed,carnet).stream().map
+        return loanRepository.findAllByStateIsNotAndCarnet_Carnet(LoanEnum.cancelled,carnet).stream().map
                 (LoanResponseDTO::new).collect(Collectors.toList());
     }
 
@@ -128,9 +128,7 @@ public class LoanServiceImpl implements LoanService{
         LocalDate dateNow = actuallyDate;
         LocalDate lastRegister = feeService.findLast();
 
-        if(dateNow.isEqual(lastRegister)) {
-            return loans;
-        }
+
         for (int i = 0; i < loans.size(); i++) {
             Loan loan = loans.get(i);
             //Se obtienen los dias que han pasado desde el ultimo registro
@@ -181,10 +179,11 @@ public class LoanServiceImpl implements LoanService{
     }
 
     @Override
-    public List<LoanResponseDTO> findlAllNotCancelledByCarnet(String carnet) throws ServiceException {
+    public ReportStudentNotCanlledLoanResponseDTO findlAllNotCancelledByCarnet(String carnet) throws ServiceException {
         Collection<LoanEnum> state = Arrays.asList(LoanEnum.borrowed,LoanEnum.penalized,LoanEnum.sanction);
-        return loanRepository.findAllByCarnet_CarnetAndStateIn(carnet, state).stream().map
-                (LoanResponseDTO::new).collect(Collectors.toList());
+        Student student = studentService.findStudentByCarnetNotDto(carnet);
+        List<Loan> loans = loanRepository.findAllByCarnet_CarnetAndStateIn(carnet, state);
+        return new ReportStudentNotCanlledLoanResponseDTO(student,loans);
     }
 
     @Override
