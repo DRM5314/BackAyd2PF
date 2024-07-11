@@ -3,6 +3,8 @@ package com.library.service.student;
 import com.library.dto.student.StudentCreateRequestDTO;
 import com.library.dto.student.StudentResponseDTO;
 import com.library.dto.student.StudentUpdateRequestDTO;
+import com.library.dto.user.UserCreateRequestDTO;
+import com.library.enums.Rol;
 import com.library.exceptions.DuplicatedEntityException;
 import com.library.exceptions.NotFoundException;
 import com.library.exceptions.ServiceException;
@@ -10,6 +12,8 @@ import com.library.model.Student;
 import com.library.repository.StudentRepository;
 import com.library.repository.UserRepository;
 import com.library.service.career.CareerService;
+import com.library.service.user.UserService;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,15 +24,17 @@ import java.util.stream.Collectors;
 public class StudentServiceImpl implements StudentService{
     private StudentRepository studentRepository;
     private CareerService careerService;
+    private UserService userService;
 
     @Autowired
-    public StudentServiceImpl(StudentRepository studentRepository,CareerService careerService
-                              ){
+    public StudentServiceImpl(StudentRepository studentRepository,CareerService careerService, UserService userService){
         this.studentRepository = studentRepository;
         this.careerService = careerService;
+        this.userService = userService;
     }
 
     @Override
+    @Transactional
     public StudentResponseDTO save(StudentCreateRequestDTO student) throws ServiceException {
         if(existsByName(student.getName())){
             throw new DuplicatedEntityException(String.format("Student with name: %s, already exists",student.getName()));
@@ -42,6 +48,9 @@ public class StudentServiceImpl implements StudentService{
         studentSave.setDteBirth(student.getDteBirth());
         studentSave.setCarnet(student.getCarnet());
         studentSave.setStatus(1);
+
+        UserCreateRequestDTO user = new UserCreateRequestDTO(Rol.STUDENT,student.getName(),"",student.getCarnet(),student.getCarnet());
+        userService.save(user);
 
         studentSave = studentRepository.save(studentSave);
         return new StudentResponseDTO(studentSave);

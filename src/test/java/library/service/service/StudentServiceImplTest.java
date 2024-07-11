@@ -3,6 +3,9 @@ package library.service.service;
 import com.library.dto.student.StudentCreateRequestDTO;
 import com.library.dto.student.StudentResponseDTO;
 import com.library.dto.student.StudentUpdateRequestDTO;
+import com.library.dto.user.UserCreateRequestDTO;
+import com.library.dto.user.UserResponseDto;
+import com.library.enums.Rol;
 import com.library.exceptions.DuplicatedEntityException;
 import com.library.exceptions.NotFoundException;
 import com.library.exceptions.ServiceException;
@@ -11,6 +14,7 @@ import com.library.model.Student;
 import com.library.repository.StudentRepository;
 import com.library.service.career.CareerService;
 import com.library.service.student.StudentServiceImpl;
+import com.library.service.user.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -28,6 +32,7 @@ class StudentServiceImplTest {
     private StudentServiceImpl studentService;
     private StudentRepository studentRepository = Mockito.mock(StudentRepository.class);
     private CareerService careerService = Mockito.mock(CareerService.class);
+    private UserService userService = Mockito.mock(UserService.class);
 
     private Long ID = 1L;
     private String NAME = "DAVID";
@@ -41,7 +46,7 @@ class StudentServiceImplTest {
 
     @BeforeEach
     void setUp() {
-        studentService = new StudentServiceImpl(studentRepository,careerService);
+        studentService = new StudentServiceImpl(studentRepository,careerService,userService);
 
         CAREER = new Career();
         CAREER.setId(CARRER_ID);
@@ -59,7 +64,8 @@ class StudentServiceImplTest {
     @Test
     void save() throws ServiceException {
         StudentCreateRequestDTO requestDTO = new StudentCreateRequestDTO(NAME,CARRER_ID,DATE_BIRD,CARNET);
-
+        UserCreateRequestDTO requesUser = new UserCreateRequestDTO(Rol.STUDENT,NAME,"",CARNET,CARNET);
+        when(userService.save(requesUser)).thenReturn(any(UserResponseDto.class));
         when(studentRepository.existsByName(NAME)).thenReturn(false);
         when(studentRepository.existsByCarnet(CARNET)).thenReturn(false);
         when(careerService.findByIdNoDto(CARRER_ID)).thenReturn(CAREER);
