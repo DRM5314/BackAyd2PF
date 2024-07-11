@@ -15,30 +15,39 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/book")
+@PreAuthorize("hasAuthority('ADMIN')")
 public class BookController {
     private BookService bookService;
+
     @Autowired
-    public BookController(BookService bookService){
+    public BookController(BookService bookService) {
         this.bookService = bookService;
     }
 
-    @PreAuthorize("hasAuthority('ADMIN')")
     @PostMapping
-    public ResponseEntity<BookResponseDTO> create (@RequestBody BookCreateRequestDTO newBook) throws ServiceException {
+    public ResponseEntity<BookResponseDTO> create(@RequestBody BookCreateRequestDTO newBook) throws ServiceException {
         BookResponseDTO response = bookService.save(newBook);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN','STUDENT')")
     @GetMapping("/findAll")
-    public ResponseEntity<List<BookResponseDTO>> findAll(){
+    public ResponseEntity<List<BookResponseDTO>> findAll() {
         return ResponseEntity.ok(bookService.findCatalog());
     }
 
-    @PreAuthorize("hasAuthority('ADMIN')")
     @PutMapping("/{bookCode}")
-    public ResponseEntity<BookResponseDTO> updateBook(@PathVariable String bookCode, @RequestBody BookUpdateRequestDTO update) throws ServiceException{
-        return ResponseEntity.ok(bookService.update(bookCode,update));
+    public ResponseEntity<BookResponseDTO> updateBook(@PathVariable String bookCode, @RequestBody BookUpdateRequestDTO update) throws ServiceException {
+        return ResponseEntity.ok(bookService.update(bookCode, update));
     }
 
+    @GetMapping("/in-stock/{quantity}")
+    public ResponseEntity<List<BookResponseDTO>> findQuantityLesThan(@PathVariable Integer quantity) throws ServiceException {
+        return ResponseEntity.ok(bookService.reportBookStock(quantity));
+    }
+
+    @GetMapping("/not-in-loans")
+    public ResponseEntity<List<BookResponseDTO>> findNotInLoans() throws ServiceException {
+        return ResponseEntity.ok(bookService.findNotLoans());
+    }
 }

@@ -14,4 +14,7 @@ public interface BookService {
     BookResponseDTO findByCode(String code) throws ServiceException;
     Book findByCodeNotDTO(String code) throws ServiceException;
     List<BookResponseDTO> findCatalog();
+    List<BookResponseDTO> reportBookStock(Integer quantity);
+    List<BookResponseDTO> findNotLoans();
+    Book updateReturn(Book book) ;
 }

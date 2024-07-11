@@ -10,12 +10,15 @@ import com.library.model.Book;
 import com.library.model.Editorial;
 import com.library.repository.BookRepository;
 import com.library.service.editorial.EditorialService;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static java.util.Arrays.stream;
 
 @Service
 public class BookServiceImpl implements BookService{
@@ -48,6 +51,7 @@ public class BookServiceImpl implements BookService{
     }
 
     @Override
+    @Transactional
     public BookResponseDTO update(String code, BookUpdateRequestDTO updateBook) throws ServiceException {
         var conditon = bookRepository.existsByTitleAndCodeIsNot(updateBook.getTitle(),code);
         if(conditon){
@@ -80,6 +84,22 @@ public class BookServiceImpl implements BookService{
     @Override
     public List<BookResponseDTO> findCatalog() {
         return bookRepository.findAll().stream().map(BookResponseDTO::new).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<BookResponseDTO> reportBookStock(Integer quantity) {
+        return bookRepository.findAllByQuantityLessThanEqual(quantity).stream().map(BookResponseDTO::new).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<BookResponseDTO> findNotLoans() {
+        return bookRepository.findNotLoans().stream().map(BookResponseDTO::new).collect(Collectors.toList());
+    }
+
+    @Override
+    public Book updateReturn(Book book){
+        book.setQuantity(book.getQuantity()+1);
+        return bookRepository.save(book);
     }
 
 

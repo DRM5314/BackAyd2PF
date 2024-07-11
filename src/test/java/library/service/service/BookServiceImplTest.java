@@ -141,5 +141,25 @@ class BookServiceImplTest {
         BookUpdateRequestDTO updateDto = new BookUpdateRequestDTO(ID,TITLE,AUTH,20,EDITORIAL_ID);
         assertThrows(DuplicatedEntityException.class,()->bookService.update(CODE,updateDto));
     }
+    @Test
+    void findLesthanQuantity() {
+        List<Book> response = List.of(book);
+        when(bookRepository.findAllByQuantityLessThanEqual(QUANTITY)).thenReturn(response);
+        List<BookResponseDTO> actually = bookService.reportBookStock(QUANTITY);
+        assertThat(actually.size()).isGreaterThan(0);
+        assertThat(actually.size()).isEqualTo(response.size());
+    }
+
+    @Test
+    void findNoUsagesLoan(){
+        List<Book> response = List.of(book);
+        when(bookRepository.findNotLoans()).thenReturn(response);
+        List<BookResponseDTO> actually = bookService.findNotLoans();
+        assertThat(actually.size()).isGreaterThan(0);
+        assertThat(actually.size()).isEqualTo(response.size());
+        for (int i = 0; i < actually.size(); i++) {
+            assertThat(actually.get(i)).isEqualToComparingFieldByFieldRecursively(new BookResponseDTO(response.get(i)));
+        }
+    }
 
 }
