@@ -18,6 +18,7 @@ import com.library.service.loan.LoanService;
 import com.library.service.student.StudentService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -91,6 +92,10 @@ public class PaymentServiceImpl implements PaymentService{
         }
         return new ReportPaymentSanctionVsLoanResponseDTO(payments);
     }
+    @Override
+    public List<Payment> findAllByCarnet(String carnet) {
+        return paymentRepository.findAllByLoan_Carnet_Carnet(carnet);
+    }
 
     public PaymentEnum mapLoanToPayment(LoanEnum loanStatus) {
         return switch (loanStatus) {
@@ -98,5 +103,14 @@ public class PaymentServiceImpl implements PaymentService{
             case sanction -> PaymentEnum.sanction;
             case borrowed, cancelled -> PaymentEnum.normal;
         };
+    }
+    @Override
+    public ReportPaymentSanctionVsLoanResponseDTO cancelledByMe() throws ServiceException {
+        String carnet = SecurityContextHolder.getContext().getAuthentication().getName();
+        List<Payment> payments = paymentRepository.findAllByLoan_Carnet_Carnet(carnet);
+        if(payments.isEmpty()){
+            throw new NotFoundException("You dont have any payments");
+        }
+        return new ReportPaymentSanctionVsLoanResponseDTO(payments);
     }
 }

@@ -21,6 +21,9 @@ import com.library.service.student.StudentService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.assertj.core.api.Assertions.*;
@@ -38,6 +41,10 @@ class LoanServiceImplTest {
     private PaymentService paymentService = mock(PaymentService.class);
     private CareerService careerService = mock(CareerService.class);
     private ObtainsDateNow dateNowService = mock(ObtainsDateNow.class);
+
+    private SecurityContext securityContext = mock(SecurityContext.class);
+
+    private Authentication authentication = mock(Authentication.class);
     private final Long ID_LOAN = 1l;
     private final LocalDate LAON_DATA = LocalDate.now();
     private final LocalDate RETURN_DATA = LocalDate.now().plusDays(3);
@@ -80,6 +87,7 @@ class LoanServiceImplTest {
     private LoanCreateRequestDTO dtoCreate;
     @BeforeEach
     void setUp() {
+        SecurityContextHolder.setContext(securityContext);
         loanService = new LoanServiceImpl(studentService, bookService, loanRepository,feeService,paymentService,careerService,dateNowService);
 
         EDITORIAL = new Editorial();
@@ -227,6 +235,7 @@ class LoanServiceImplTest {
         when(loanRepository.findAllByReturnDateLessThanAndStateNotIn(HISTORY_FEE_NOT_CONSIDERATION, states)).thenReturn(expected);
         when(feeService.findLast()).thenReturn(HISTORY_FEE_NOT_CONSIDERATION);
 
+        when(dateNowService.getDateNow()).thenReturn(LocalDate.now());
         loanService.init();
     }
     @Test
@@ -657,5 +666,29 @@ class LoanServiceImplTest {
         ReportStudentMoreLoansResponseDTO actually = loanService.findMoreStudent(request);
         assertThat(actually.getStudent()).isEqualToComparingFieldByFieldRecursively(expected.getStudent());
         assertThat(actually.getTotalLoans()).isEqualTo(expected.getTotalLoans());
+    }
+    @Test
+    void notCancelledMeNotFound() throws ServiceException{
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        when(authentication.getName()).thenReturn(CARNET);
+        when(studentService.findStudentByCarnetNotDto(CARNET)).thenReturn(STUDENT);
+        when(loanRepository.findAllByStateIsNotAndCarnet_Carnet(LoanEnum.cancelled,CARNET)).thenReturn(List.of());
+        Assertions.assertThrows(NotFoundException.class,()->loanService.notCancelledMe());
+    }
+    @Test
+    void notCancelledMe() throws ServiceException{
+        List<Loan> loans = List.of(LOAN);
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        when(authentication.getName()).thenReturn(CARNET);
+        when(studentService.findStudentByCarnetNotDto(CARNET)).thenReturn(STUDENT);
+        when(loanRepository.findAllByStateIsNotAndCarnet_Carnet(LoanEnum.cancelled,CARNET)).thenReturn(loans);
+
+        ReportStudentNotCanlledLoanResponseDTO expected = new ReportStudentNotCanlledLoanResponseDTO(STUDENT,loans);
+        ReportStudentNotCanlledLoanResponseDTO actually = loanService.notCancelledMe();
+        assertThat(actually.getStudent()).isEqualToComparingFieldByFieldRecursively(expected.getStudent());
+        assertThat(actually.getLoans().size()).isEqualTo(expected.getLoans().size());
+        for (int i = 0; i < actually.getLoans().size(); i++) {
+            assertThat(actually.getLoans().get(i)).isEqualToComparingFieldByFieldRecursively(new LoanResponseDTO(loans.get(i)));
+        }
     }
 }

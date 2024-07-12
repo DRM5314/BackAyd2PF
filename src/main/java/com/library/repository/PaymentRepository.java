@@ -13,6 +13,7 @@ import java.util.Optional;
 public interface PaymentRepository extends CrudRepository<Payment,Long> {
     @Override
     List<Payment> findAll();
+    List<Payment> findAllByLoan_Carnet_Carnet(String carnet);
     Optional<Payment> findById(Long id);
     List<Payment> findAllByType(PaymentEnum type);
     List<Payment> findAllByTypeAndDatePaymentBetween(PaymentEnum type, LocalDate init, LocalDate end);

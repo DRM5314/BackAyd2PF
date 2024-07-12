@@ -33,4 +33,9 @@ public class PaymentController {
     public ResponseEntity<ReportPaymentSanctionVsLoanResponseDTO> findMoreStudentPaymenst(@RequestBody ReportDatesAndCarnetRequestDTO request) throws ServiceException{
         return ResponseEntity.ok(paymentService.findMoreStudent(request));
     }
+    @PreAuthorize("hasAuthority('STUDENT')")
+    @GetMapping("/payment-me")
+    public ResponseEntity<ReportPaymentSanctionVsLoanResponseDTO> findMoreStudentPaymenst() throws ServiceException{
+        return ResponseEntity.ok(paymentService.cancelledByMe());
+    }
 }

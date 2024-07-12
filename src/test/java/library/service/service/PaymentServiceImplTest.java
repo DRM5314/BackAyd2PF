@@ -19,11 +19,15 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.time.LocalDate;
 import java.util.Optional;
 import static org.assertj.core.api.Assertions.*;
 
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import java.util.List;
 
@@ -32,7 +36,9 @@ public class PaymentServiceImplTest {
     private PaymentRepository paymentRepository = Mockito.mock(PaymentRepository.class);
     private BookService bookService = Mockito.mock(BookService.class);
     private StudentService studentService = Mockito.mock(StudentService.class);
+    private SecurityContext securityContext = mock(SecurityContext.class);
 
+    private Authentication authentication = mock(Authentication.class);
     private PaymentServiceImpl paymentService;
     private Loan LOAN;
     private final Long ID_LOAN = 1l;
@@ -71,6 +77,7 @@ public class PaymentServiceImplTest {
 
     @BeforeEach
     void setUp() {
+        SecurityContextHolder.setContext(securityContext);
         paymentService = new PaymentServiceImpl(paymentRepository, loanService, bookService, studentService);
 
         EDITORIAL = new Editorial();
@@ -201,6 +208,26 @@ public class PaymentServiceImplTest {
         ReportPaymentSanctionVsLoanResponseDTO expected = new ReportPaymentSanctionVsLoanResponseDTO(List.of(PAYMENT));
         ReportDatesAndCarnetRequestDTO request = new ReportDatesAndCarnetRequestDTO(CARNET, DATE_PAYMENT, DATE_PAYMENT);
         ReportPaymentSanctionVsLoanResponseDTO actually = paymentService.findMoreStudent(request);
+        assertThat(expected).isEqualToComparingFieldByFieldRecursively(actually);
+    }
+    @Test
+    void cancelledByMeNotFound() throws ServiceException{
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        when(authentication.getName()).thenReturn(CARNET);
+        when(studentService.findStudentByCarnetNotDto(CARNET)).thenReturn(STUDENT);
+        when(paymentRepository.findAllByLoan_Carnet_Carnet(CARNET)).thenReturn(List.of());
+        Assertions.assertThrows(NotFoundException.class, () -> paymentService.cancelledByMe());
+    }
+    @Test
+    void cancelledByMe() throws ServiceException{
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        when(authentication.getName()).thenReturn(CARNET);
+        when(paymentRepository.findAllByLoan_Carnet_Carnet(CARNET)).thenReturn(List.of(PAYMENT));
+
+        Double total = PAYMENT.getTotal();
+
+        ReportPaymentSanctionVsLoanResponseDTO expected = new ReportPaymentSanctionVsLoanResponseDTO(List.of(PAYMENT));
+        ReportPaymentSanctionVsLoanResponseDTO actually = paymentService.cancelledByMe();
         assertThat(expected).isEqualToComparingFieldByFieldRecursively(actually);
     }
 }

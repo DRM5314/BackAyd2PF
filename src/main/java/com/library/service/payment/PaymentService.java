@@ -6,6 +6,7 @@ import com.library.dto.payment.PaymentCreateRequestDTO;
 import com.library.dto.payment.PaymentResponseDto;
 import com.library.enums.PaymentEnum;
 import com.library.exceptions.ServiceException;
+import com.library.model.Payment;
 
 import java.time.LocalDate;
 import java.util.*;
@@ -15,4 +16,6 @@ public interface PaymentService {
     List<PaymentResponseDto> findAllByType(PaymentEnum type);
     List<PaymentResponseDto> findAllByTypeAndDate(PaymentEnum type, LocalDate init, LocalDate end);
     ReportPaymentSanctionVsLoanResponseDTO findMoreStudent(ReportDatesAndCarnetRequestDTO request) throws ServiceException;
+    List<Payment> findAllByCarnet(String carnet);
+    ReportPaymentSanctionVsLoanResponseDTO cancelledByMe() throws ServiceException;
 }

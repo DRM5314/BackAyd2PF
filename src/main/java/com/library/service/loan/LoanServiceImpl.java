@@ -22,6 +22,7 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -135,7 +136,9 @@ public class LoanServiceImpl implements LoanService{
         //Se consulta cuando fue la ultima actualizacion de tasas de prestamos
         LocalDate dateNow = dateNowService.getDateNow();
         LocalDate lastRegister = feeService.findLast();
-
+        if(dateNow.isEqual(lastRegister)) {
+            return loans;
+        }
 
         for (int i = 0; i < loans.size(); i++) {
             Loan loan = loans.get(i);
@@ -233,5 +236,15 @@ public class LoanServiceImpl implements LoanService{
         Student student = loan.getCarnet();
         List<Loan> loans = loanRepository.findAllByCarnet_Carnet(student.getCarnet());
         return new ReportStudentMoreLoansResponseDTO(student,loans);
+    }
+    @Override
+    public ReportStudentNotCanlledLoanResponseDTO notCancelledMe() throws ServiceException {
+        String carnet = SecurityContextHolder.getContext().getAuthentication().getName();
+        Student student = studentService.findStudentByCarnetNotDto(carnet);
+        List<Loan> loans = loanRepository.findAllByStateIsNotAndCarnet_Carnet(LoanEnum.cancelled,carnet);
+        if (loans.isEmpty()){
+            throw new NotFoundException("No tienes prestamos activos!");
+        }
+        return new ReportStudentNotCanlledLoanResponseDTO(student,loans);
     }
 }

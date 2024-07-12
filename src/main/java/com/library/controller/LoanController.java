@@ -41,6 +41,11 @@ public class LoanController {
     public ResponseEntity<ReportStudentNotCanlledLoanResponseDTO> findAllNotCancelledByCarnet(@PathVariable String carnet) throws ServiceException{
         return ResponseEntity.ok(loanService.findlAllNotCancelledByCarnet(carnet));
     }
+    @PreAuthorize("hasAuthority('STUDENT')")
+    @GetMapping("/not-cancelled-by-me")
+    public ResponseEntity<ReportStudentNotCanlledLoanResponseDTO> findAllNotCancelledByMe() throws ServiceException{
+        return ResponseEntity.ok(loanService.notCancelledMe());
+    }
     @GetMapping("/return-now")
     public ResponseEntity<List<LoanResponseDTO>> findAllByReturnNow() throws ServiceException{
         return ResponseEntity.ok(loanService.findAllByReturnNow());
