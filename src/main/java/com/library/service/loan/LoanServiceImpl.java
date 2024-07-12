@@ -11,6 +11,7 @@ import com.library.exceptions.ServiceException;
 import com.library.exceptions.StudentInactive;
 import com.library.model.*;
 import com.library.repository.LoanRepository;
+import com.library.service.ObtainsDateNow;
 import com.library.service.book.BookService;
 import com.library.service.career.CareerService;
 import com.library.service.fee.FeeService;
@@ -39,19 +40,21 @@ public class LoanServiceImpl implements LoanService{
     private FeeService feeService;
     private PaymentService paymentService;
     private CareerService careerService;
+    private ObtainsDateNow dateNowService;
     @Autowired
-    public LoanServiceImpl(StudentService studentService, BookService bookService,LoanRepository loanRepository,FeeService feeService,@Lazy PaymentService paymentService,@Lazy CareerService careerService){
+    public LoanServiceImpl(StudentService studentService, BookService bookService,LoanRepository loanRepository,FeeService feeService,@Lazy PaymentService paymentService,@Lazy CareerService careerService,ObtainsDateNow dateNowService){
         this.studentService = studentService;
         this.bookService = bookService;
         this.loanRepository = loanRepository;
         this.feeService = feeService;
         this.paymentService = paymentService;
         this.careerService = careerService;
+        this.dateNowService = dateNowService;
     }
     @PostConstruct
     @Transactional
     public void init() throws ServiceException {
-        this.loansUpdateFee(LocalDate.now());
+        this.loansUpdateFee();
     }
 
     @Override
@@ -115,17 +118,21 @@ public class LoanServiceImpl implements LoanService{
     }
 
 //    @Before("execution(* com.library.service.loan.*.*(..))")
+    @Scheduled(cron = "0 * * * * ?")
+    public void saluda(){
+        System.out.println("Hola mundo");
+    }
     @Scheduled(cron = "0 0 4 * * ?")
     @Transactional
     @Override
-    public List<Loan> loansUpdateFee(LocalDate actuallyDate) throws ServiceException{
+    public List<Loan> loansUpdateFee() throws ServiceException{
         System.out.println("Ejecuto actualizar tareas de forma automatica");
         //Para actualizar las tasas de los prestamos no se incluyen los prestamos cancelados y sancionados
         List<LoanEnum> notFind = Arrays.asList(LoanEnum.cancelled,LoanEnum.sanction);
-        List<Loan> loans = loanRepository.findAllByReturnDateLessThanAndStateNotIn(actuallyDate,notFind);
+        List<Loan> loans = loanRepository.findAllByReturnDateLessThanAndStateNotIn(dateNowService.getDateNow(),notFind);
 
         //Se consulta cuando fue la ultima actualizacion de tasas de prestamos
-        LocalDate dateNow = actuallyDate;
+        LocalDate dateNow = dateNowService.getDateNow();
         LocalDate lastRegister = feeService.findLast();
 
 

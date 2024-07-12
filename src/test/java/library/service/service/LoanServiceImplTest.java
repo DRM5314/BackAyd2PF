@@ -11,6 +11,7 @@ import com.library.exceptions.ServiceException;
 import com.library.exceptions.StudentInactive;
 import com.library.model.*;
 import com.library.repository.LoanRepository;
+import com.library.service.ObtainsDateNow;
 import com.library.service.book.BookService;
 import com.library.service.career.CareerService;
 import com.library.service.fee.FeeService;
@@ -36,6 +37,7 @@ class LoanServiceImplTest {
     private FeeService feeService = mock(FeeService.class);
     private PaymentService paymentService = mock(PaymentService.class);
     private CareerService careerService = mock(CareerService.class);
+    private ObtainsDateNow dateNowService = mock(ObtainsDateNow.class);
     private final Long ID_LOAN = 1l;
     private final LocalDate LAON_DATA = LocalDate.now();
     private final LocalDate RETURN_DATA = LocalDate.now().plusDays(3);
@@ -78,7 +80,7 @@ class LoanServiceImplTest {
     private LoanCreateRequestDTO dtoCreate;
     @BeforeEach
     void setUp() {
-        loanService = new LoanServiceImpl(studentService, bookService, loanRepository,feeService,paymentService,careerService);
+        loanService = new LoanServiceImpl(studentService, bookService, loanRepository,feeService,paymentService,careerService,dateNowService);
 
         EDITORIAL = new Editorial();
         EDITORIAL.setId(EDITORIAL_ID);
@@ -244,7 +246,8 @@ class LoanServiceImplTest {
 
         when(loanRepository.findAllByReturnDateLessThanAndStateNotIn(HISTORY_FEE_NOT_CONSIDERATION, states)).thenReturn(expected);
         when(feeService.findLast()).thenReturn(HISTORY_FEE_NOT_CONSIDERATION);
-        List<Loan> actually = loanService.loansUpdateFee(HISTORY_FEE_NOT_CONSIDERATION);
+        when(dateNowService.getDateNow()).thenReturn(HISTORY_FEE_NOT_CONSIDERATION);
+        List<Loan> actually = loanService.loansUpdateFee();
         assertThat(actually.size()).isEqualTo(expected.size());
         for (int i = 0; i < actually.size(); i++) {
             assertThat(actually.get(i)).isEqualToComparingFieldByFieldRecursively(expected.get(i));
@@ -289,8 +292,8 @@ class LoanServiceImplTest {
         fee.setTotalLoans(1);
         fee.setDate(DATA_FIND);
         when(feeService.save(any(FeeUpdateHistory.class))).thenReturn(fee);
-
-        List<Loan> actually = loanService.loansUpdateFee(DATA_FIND);
+        when(dateNowService.getDateNow()).thenReturn(DATA_FIND);
+        List<Loan> actually = loanService.loansUpdateFee();
         assertThat(actually.size()).isEqualTo(expected.size());
         for (int i = 0; i < actually.size(); i++) {
             assertThat(actually.get(i)).isEqualToComparingFieldByFieldRecursively(expected.get(i));
@@ -335,8 +338,8 @@ class LoanServiceImplTest {
         fee.setTotalLoans(1);
         fee.setDate(DATA_FIND);
         when(feeService.save(any(FeeUpdateHistory.class))).thenReturn(fee);
-
-        List<Loan> actually = loanService.loansUpdateFee(DATA_FIND);
+        when(dateNowService.getDateNow()).thenReturn(DATA_FIND);
+        List<Loan> actually = loanService.loansUpdateFee();
         assertThat(actually.size()).isEqualTo(expected.size());
         for (int i = 0; i < actually.size(); i++) {
             assertThat(actually.get(i)).isEqualToComparingFieldByFieldRecursively(expected.get(i));
@@ -383,8 +386,8 @@ class LoanServiceImplTest {
         fee.setTotalLoans(1);
         fee.setDate(DATA_FIND);
         when(feeService.save(any(FeeUpdateHistory.class))).thenReturn(fee);
-
-        List<Loan> actually = loanService.loansUpdateFee(DATA_FIND);
+        when(dateNowService.getDateNow()).thenReturn(DATA_FIND);
+        List<Loan> actually = loanService.loansUpdateFee();
         assertThat(actually.size()).isEqualTo(expected.size());
         for (int i = 0; i < actually.size(); i++) {
             assertThat(actually.get(i)).isEqualToComparingFieldByFieldRecursively(expected.get(i));
@@ -430,7 +433,8 @@ class LoanServiceImplTest {
         fee.setDate(DATA_FIND);
         when(feeService.save(any(FeeUpdateHistory.class))).thenReturn(fee);
 
-        List<Loan> actually = loanService.loansUpdateFee(DATA_FIND);
+        when(dateNowService.getDateNow()).thenReturn(DATA_FIND);
+        List<Loan> actually = loanService.loansUpdateFee();
         assertThat(actually.size()).isEqualTo(expected.size());
         for (int i = 0; i < actually.size(); i++) {
             assertThat(actually.get(i)).isEqualToComparingFieldByFieldRecursively(expected.get(i));
@@ -476,7 +480,8 @@ class LoanServiceImplTest {
         fee.setDate(DATA_FIND);
         when(feeService.save(any(FeeUpdateHistory.class))).thenReturn(fee);
 
-        List<Loan> actually = loanService.loansUpdateFee(DATA_FIND);
+        when(dateNowService.getDateNow()).thenReturn(DATA_FIND);
+        List<Loan> actually = loanService.loansUpdateFee();
         assertThat(actually.size()).isEqualTo(expected.size());
         for (int i = 0; i < actually.size(); i++) {
             assertThat(actually.get(i)).isEqualToComparingFieldByFieldRecursively(expected.get(i));
