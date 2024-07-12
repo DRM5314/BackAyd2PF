@@ -118,10 +118,11 @@ public class LoanServiceImpl implements LoanService{
     }
 
 //    @Before("execution(* com.library.service.loan.*.*(..))")
-    @Scheduled(cron = "0 * * * * ?")
-    public void saluda(){
-        System.out.println("Hola mundo");
-    }
+//    @Scheduled(cron = "0 * * * * ?")
+//    public void saluda(){
+//        System.out.println("Hola mundo");
+//    }
+
     @Scheduled(cron = "0 0 4 * * ?")
     @Transactional
     @Override
